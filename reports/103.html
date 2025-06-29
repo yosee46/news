@@ -1,0 +1,481 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIと半導体の未来：開発環境とモバイル市場の進化</title>
+<style>
+/* Color Palette */
+:root {
+  --ui-color-1: #1B6C8C; /* UI/UX-1 */
+  --ui-color-2: #BF8136; /* UI/UX-2 */
+  --ui-color-3: #F2E8E4; /* UI/UX-3 */
+  --ui-color-4: #260101; /* UI/UX-4 */
+  --ui-color-5: #BF5656; /* UI/UX-5 */
+  --background-color: #FFF8F5; /* Overall white background */
+}
+
+/* Font Imports */
+@import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+body {
+  font-family: 'Zen Kurenaido', sans-serif;
+  background-color: var(--background-color);
+  margin: 0;
+  padding: 20px;
+  color: #333333;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden; /* Prevent horizontal scroll from rotated elements */
+}
+
+/* Typography */
+h1 {
+  font-size: 36px;
+  color: #333333;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: 'Kaisei Decol', serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+h2 {
+  font-size: 24px;
+  color: #555555;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Kaisei Decol', serif;
+}
+
+h3 {
+  font-size: 18px;
+  color: #333333;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  font-family: 'Kaisei Decol', serif;
+}
+
+p, li {
+  font-size: 16px;
+  color: #333333;
+}
+
+.date-info {
+  font-size: 14px;
+  color: #777777;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+/* Layout */
+.infographic-container {
+  max-width: 2000px;
+  width: 100%;
+}
+
+.section-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+/* Card Style */
+.section-card {
+  flex: 1;
+  min-width: 280px; /* Adjusted for 4-column layout on larger screens */
+  max-width: 450px;
+  background-color: white;
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: visible; /* Allow speech bubbles to overflow */
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  margin-bottom: 60px; /* Space for bottom speech bubble */
+}
+
+.section-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 8px 8px 20px rgba(0,0,0,0.2);
+}
+
+/* Card internal elements */
+.mega-icon-container {
+  text-align: center;
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-content {
+  padding: 0 10px 15px;
+}
+
+.keyword-list {
+  margin: 15px 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.keyword-list li {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.keyword-list li i {
+  margin-right: 8px;
+  color: var(--ui-color-2); /* Using UI/UX-2 for list icons */
+  min-width: 16px;
+  padding-top: 2px; /* Align icon better with text */
+}
+
+/* Keyword Tag */
+.keyword-tag {
+  background-color: var(--ui-color-3);
+  color: var(--ui-color-4);
+  padding: 3px 8px;
+  border-radius: 5px;
+  margin-right: 5px;
+  display: inline-block;
+  font-weight: bold;
+  font-size: 15px;
+  white-space: nowrap; /* Prevent breaking inside tags */
+}
+
+/* Speech Bubble Base */
+.speech-bubble {
+  position: absolute;
+  background: #fff;
+  border: 3px solid var(--ui-color-1);
+  border-radius: 20px;
+  padding: 10px 15px;
+  margin: 0;
+  font-family: 'Yomogi', cursive;
+  box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+  transform: rotate(-1deg);
+  width: calc(100% - 30px);
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  border-style: solid;
+  display: block;
+  width: 0;
+}
+
+/* Speech Bubble Position Variations */
+.speech-bubble.bottom-left {
+  bottom: -50px; /* Position below card, adjusted for margin-bottom */
+  left: 5%;
+}
+.speech-bubble.bottom-left::after {
+  top: -13px; /* Pointer points upwards from bubble */
+  left: 20px;
+  border-width: 0 8px 12px;
+  border-color: var(--ui-color-1) transparent;
+  transform: rotate(5deg);
+}
+
+.speech-bubble.top-right {
+  top: -50px; /* Position above card, adjusted to not overlap header */
+  right: 5%;
+  transform: rotate(2deg);
+}
+.speech-bubble.top-right::after {
+  bottom: -13px; /* Pointer points downwards from bubble */
+  right: 20px;
+  border-width: 12px 8px 0;
+  border-color: var(--ui-color-1) transparent;
+  transform: rotate(-10deg);
+}
+
+/* Speech Bubble Variants (Colors) */
+.speech-bubble.variant-1 {
+  background: #FFF9E3;
+  border-color: var(--ui-color-2);
+  transform: rotate(1deg);
+}
+.speech-bubble.variant-1::after {
+  border-color: var(--ui-color-2) transparent; /* Re-apply specific color for variant */
+}
+.speech-bubble.variant-1.bottom-left::after {
+  border-color: var(--ui-color-2) transparent;
+}
+.speech-bubble.variant-1.top-right::after {
+  border-color: var(--ui-color-2) transparent;
+}
+
+.speech-bubble.variant-2 {
+  background: #FFE9E9;
+  border-color: var(--ui-color-5);
+  transform: rotate(-2deg);
+}
+.speech-bubble.variant-2::after {
+  border-color: var(--ui-color-5) transparent; /* Re-apply specific color for variant */
+}
+.speech-bubble.variant-2.bottom-left::after {
+  border-color: var(--ui-color-5) transparent;
+}
+.speech-bubble.variant-2.top-right::after {
+  border-color: var(--ui-color-5) transparent;
+}
+
+.handwritten {
+  font-family: 'Yomogi', cursive;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* Code Preview */
+pre {
+  background: #f5f5f5;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
+  margin-top: 10px;
+  overflow-x: auto;
+  border: 1px dashed #ccc;
+}
+
+/* Animations */
+@keyframes fade-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fade-in-scale {
+  animation: fade-in-scale 1s ease-out forwards;
+}
+
+@keyframes pulse-highlight {
+    0% { background-color: transparent; }
+    50% { background-color: rgba(255, 255, 150, 0.7); } /* Light yellow */
+    100% { background-color: transparent; }
+}
+
+.highlight-keyword {
+    animation: pulse-highlight 1.5s infinite alternate;
+    font-weight: bold;
+    display: inline-block; /* Ensure background color works well */
+    padding: 0 2px; /* Small padding for highlight */
+    border-radius: 3px;
+}
+
+/* Responsive Design */
+@media (max-width: 1600px) {
+  .section-card {
+    min-width: 300px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .section-layout {
+    display: grid; /* Switch to grid for better control over columns */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Two columns */
+    padding: 0 10px;
+  }
+  .section-card {
+    min-width: auto;
+    max-width: none;
+    width: auto; /* Let grid handle width */
+  }
+  h1 {
+      font-size: 32px;
+  }
+}
+
+@media (max-width: 900px) {
+  .section-layout {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Still two columns, slightly larger */
+  }
+}
+
+@media (max-width: 768px) {
+  .section-layout {
+    grid-template-columns: 1fr; /* Single column */
+  }
+  .section-card {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 60px; /* Keep space for bubble */
+  }
+  h1 {
+      font-size: 28px;
+      flex-direction: column;
+      gap: 10px;
+  }
+  .speech-bubble.bottom-left,
+  .speech-bubble.top-right {
+      position: static; /* Remove absolute positioning on small screens */
+      transform: rotate(0deg);
+      width: auto;
+      margin: 15px auto; /* Center static bubble */
+  }
+  .speech-bubble.bottom-left::after,
+  .speech-bubble.top-right::after {
+      content: none; /* Hide pointer for static bubbles */
+  }
+}
+</style>
+</head>
+<body>
+<div class="infographic-container">
+    <h1><i class="fa-solid fa-gears fa-7x" style="color: var(--ui-color-1);"></i>テクノロジーの未来予測：AI開発と半導体トレンド</h1>
+    <p class="date-info">2024年7月29日</p>
+
+    <div class="section-layout">
+
+        <!-- Card 1: VS Code AI化の幕開け -->
+        <div class="section-card fade-in-scale">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-robot fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-laptop-code fa-lg" aria-hidden="true"></i>VS Code AI化の幕開け</h2>
+            </div>
+            <div class="card-content">
+                <h3><i class="fa-solid fa-circle-info fa-lg" aria-hidden="true"></i>GitHub Copilot Chatオープンソース化</h3>
+                <ul class="keyword-list">
+                    <li><i class="fa-solid fa-code" aria-hidden="true"></i>ソースコードが<span class="keyword-tag">MITライセンス</span>で公開</li>
+                    <li><i class="fa-solid fa-hand-holding-heart" aria-hidden="true"></i>VS Codeを<span class="keyword-tag">オープンソースのAIエディタ</span>にする方針</li>
+                    <li><i class="fa-solid fa-sitemap" aria-hidden="true"></i>マイクロソフトの<span class="keyword-tag">戦略の第一歩</span></li>
+                </ul>
+            </div>
+            <div class="speech-bubble bottom-left">
+                <span class="handwritten">
+                    <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-2);"></i>
+                    これはAI機能が
+                    <br>
+                    VS Code本体に
+                    <br>
+                    <span class="highlight-keyword">組み込まれる</span>
+                    <br>
+                    重要なステップ！
+                </span>
+            </div>
+        </div>
+
+        <!-- Card 2: AIエディタの競争展望 -->
+        <div class="section-card fade-in-scale">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-user-group fa-5x" style="color: var(--ui-color-2); animation: fa-beat-fade 2.5s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-chart-line fa-lg" aria-hidden="true"></i>AIエディタの競争展望</h2>
+            </div>
+            <div class="card-content">
+                <h3><i class="fa-solid fa-people-arrows fa-lg" aria-hidden="true"></i>既存AIエディタとの差別化</h3>
+                <ul class="keyword-list">
+                    <li><i class="fa-solid fa-code-branch" aria-hidden="true"></i>先行する<span class="keyword-tag">VS Codeフォーク製品</span>に注目</li>
+                    <li><i class="fa-solid fa-robot" aria-hidden="true"></i>例: <span class="keyword-tag">Cursor</span>や<span class="keyword-tag">Windsurf</span></li>
+                    <li><i class="fa-solid fa-question-circle" aria-hidden="true"></i>VS Codeの<span class="keyword-tag">AI機能統合</span>へどう対応するか？</li>
+                </ul>
+                <h3><i class="fa-solid fa-eye fa-lg" aria-hidden="true"></i>市場の動向予測</h3>
+                <ul class="keyword-list">
+                    <li><i class="fa-solid fa-arrow-right" aria-hidden="true"></i>AI統合が進むことで、開発体験が大きく変わる</li>
+                    <li><i class="fa-solid fa-handshake" aria-hidden="true"></i>既存ツールは<span class="keyword-tag">専門性</span>で差別化を模索</li>
+                </ul>
+            </div>
+            <div class="speech-bubble top-right variant-1">
+                <span class="handwritten">
+                    <i class="fa-solid fa-magnifying-glass fa-lg" style="color: var(--ui-color-5);"></i>
+                    今後の<span class="highlight-keyword">競争戦略</span>が
+                    <br>
+                    非常に重要に
+                    <br>
+                    なりますね！
+                </span>
+            </div>
+        </div>
+
+        <!-- Card 3: 2025年後半 SoC市場の動向 -->
+        <div class="section-card fade-in-scale">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-mobile-screen-button fa-5x" style="color: var(--ui-color-4); animation: fa-flip 2s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-microchip fa-lg" aria-hidden="true"></i>2025年後半 SoC市場の動向</h2>
+            </div>
+            <div class="card-content">
+                <h3><i class="fa-solid fa-star fa-lg" aria-hidden="true"></i>新型フラッグシップチップ続々登場</h3>
+                <ul class="keyword-list">
+                    <li><i class="fa-solid fa-apple-whole" aria-hidden="true"></i>Apple: <span class="keyword-tag">A19 Pro</span></li>
+                    <li><i class="fa-brands fa-qualcomm" aria-hidden="true"></i>Qualcomm: <span class="keyword-tag">Snapdragon 8 Elite 2</span></li>
+                    <li><i class="fa-solid fa-gem" aria-hidden="true"></i>MediaTek: <span class="keyword-tag">Dimensity 9500</span></li>
+                    <li><i class="fa-brands fa-huawei" aria-hidden="true"></i>Huawei: <span class="keyword-tag">Kirin 9030</span></li>
+                </ul>
+                <h3><i class="fa-solid fa-industry fa-lg" aria-hidden="true"></i>製造プロセスと性能向上</h3>
+                <ul class="keyword-list">
+                    <li><i class="fa-solid fa-microchip" aria-hidden="true"></i>多くが<span class="keyword-tag">TSMC 3nmプロセス</span>採用</li>
+                    <li><i class="fa-solid fa-arrow-up" aria-hidden="true"></i>性能向上と<span class="keyword-tag">電力効率改善</span>に期待</li>
+                </ul>
+            </div>
+            <div class="speech-bubble bottom-left variant-2">
+                <span class="handwritten">
+                    <i class="fa-solid fa-bolt fa-lg" style="color: var(--ui-color-1);"></i>
+                    3nmプロセスで
+                    <br>
+                    <span class="highlight-keyword">スマホ性能</span>が
+                    <br>
+                    また一段と進化！
+                </span>
+            </div>
+        </div>
+
+        <!-- Card 4: 独自開発チップとM5チップ -->
+        <div class="section-card fade-in-scale">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-desktop fa-5x" style="color: var(--ui-color-5); animation: fa-shake 2.2s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-cogs fa-lg" aria-hidden="true"></i>独自開発チップとM5チップ</h2>
+            </div>
+            <div class="card-content">
+                <h3><i class="fa-solid fa-lightbulb fa-lg" aria-hidden="true"></i>Xiaomiの独自チップ動向</h3>
+                <ul class="keyword-list">
+                    <li><i class="fa-solid fa-mobile-alt" aria-hidden="true"></i>独自開発<span class="keyword-tag">XRING O2</span>チップ開発中</li>
+                    <li><i class="fa-solid fa-chart-bar" aria-hidden="true"></i>スマホ市場での<span class="keyword-tag">競争力強化</span>を目指す</li>
+                </ul>
+                <h3><i class="fa-solid fa-laptop fa-lg" aria-hidden="true"></i>Apple M5チップの準備</h3>
+                <ul class="keyword-list">
+                    <li><i class="fa-solid fa-tablet-alt" aria-hidden="true"></i>新型<span class="keyword-tag">iPad Pro</span>向けに準備</li>
+                    <li><i class="fa-solid fa-laptop-code" aria-hidden="true"></i><span class="keyword-tag">MacBook Pro</span>にも搭載予定</li>
+                </ul>
+            </div>
+            <div class="speech-bubble top-right variant-1">
+                <span class="handwritten">
+                    <i class="fa-solid fa-rocket fa-lg" style="color: var(--ui-color-2);"></i>
+                    各社が<span class="highlight-keyword">独自チップ</span>で
+                    <br>
+                    更なる性能向上を
+                    <br>
+                    追求していますね！
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
+```
