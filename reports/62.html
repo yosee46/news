@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シャオミ独自チップ戦略 - グラフィックレコーディング</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        :root {
+            --ui-color-1: #1B6C8C; /* UI/UX-1 */
+            --ui-color-2: #BF8136; /* UI/UX-2 */
+            --ui-color-3: #F2E8E4; /* UI/UX-3 */
+            --ui-color-4: #260101; /* UI/UX-4 */
+            --ui-color-5: #BF5656; /* UI/UX-5 */
+            --bg-color: #FFF8F5; /* 白背景 */
+        }
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: #333333;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* タイポグラフィ */
+        h1 {
+            font-size: 36px;
+            color: #333333;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'Kaisei Decol', serif;
+        }
+
+        h1 i {
+            margin-right: 15px;
+            color: var(--ui-color-1);
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #555555;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-family: 'Kaisei Decol', serif;
+        }
+
+        h2 i {
+            margin-right: 8px;
+            color: var(--ui-color-2);
+        }
+
+        .list-heading {
+            font-size: 18px;
+            color: #333333;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* 全体レイアウト */
+        .container {
+            width: 100%;
+            max-width: 2000px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .header .date {
+            font-size: 14px;
+            color: #777777;
+            margin-top: 10px;
+        }
+
+        .section-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        /* カードスタイル */
+        .section-card {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            animation: fade-in-scale 0.8s ease-out forwards;
+        }
+
+        .section-card:hover {
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15);
+            background-color: var(--ui-color-3);
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* カード内アイコンコンテナ */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .mega-icon-container i {
+            animation: fa-beat-fade 3s infinite;
+        }
+
+        /* カードコンテンツ */
+        .card-content {
+            padding: 0 5px 15px;
+            flex-grow: 1;
+        }
+
+        /* キーワードリスト */
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            font-size: 16px;
+            color: #333333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .keyword-list li i {
+            margin-right: 10px;
+            color: var(--ui-color-2);
+            font-size: 1em; /* fa-lg 相当 */
+            min-width: 20px;
+            text-align: center;
+            padding-top: 2px;
+        }
+
+        /* キーワードタグ */
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-right: 6px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 15px;
+            white-space: nowrap;
+            transition: background-color 0.3s ease;
+        }
+        .keyword-tag:hover {
+            background-color: var(--ui-color-5);
+            color: white;
+        }
+
+        /* 手書き風吹き出し */
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 20px;
+            padding: 12px 18px;
+            margin: 20px 10px 10px;
+            font-family: 'Yomogi', cursive;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+            z-index: 10;
+            align-self: center;
+            max-width: calc(100% - 20px);
+            width: fit-content;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 25px;
+            border-width: 15px 10px 0;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            display: block;
+            width: 0;
+            transform: rotate(-3deg);
+        }
+
+        /* 吹き出しバリエーション */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 25px;
+            transform: rotate(15deg);
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -15px;
+            border-width: 0 10px 15px;
+            transform: rotate(-5deg);
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3;
+            border-color: var(--ui-color-2);
+            transform: rotate(1deg);
+        }
+
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent;
+        }
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9;
+            border-color: var(--ui-color-5);
+            transform: rotate(-2deg);
+        }
+
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent;
+        }
+
+        /* 手書き文字 */
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .handwritten i {
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .handwritten .keyword-tag {
+            margin-top: 5px;
+        }
+
+        /* コードプレビュー */
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 15px;
+            overflow-x: auto;
+            font-family: monospace;
+            border: 1px solid #ddd;
+        }
+
+        /* アニメーション */
+        @keyframes fade-in-scale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        @keyframes highlight {
+            0% { background-color: transparent; }
+            50% { background-color: yellow; }
+            100% { background-color: transparent; }
+        }
+
+        /* レスポンシブ対応 */
+        @media (min-width: 1601px) {
+            .section-layout {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        @media (max-width: 1600px) {
+            .section-layout {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 1200px) {
+            .section-layout {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .section-layout {
+                grid-template-columns: 1fr;
+            }
+            .section-card {
+                margin-left: auto;
+                margin-right: auto;
+                max-width: 450px;
+                width: 90%;
+            }
+            .speech-bubble {
+                margin: 20px auto 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 28px;
+            }
+            h1 i {
+                font-size: 5em; /* relative to parent font size */
+            }
+            h2 {
+                font-size: 20px;
+            }
+            .list-heading {
+                font-size: 16px;
+            }
+            .keyword-list li {
+                font-size: 14px;
+            }
+            .keyword-tag, .handwritten {
+                font-size: 14px;
+            }
+            pre {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fa-solid fa-brain fa-7x" style="color: var(--ui-color-1);" aria-hidden="true"></i>シャオミの独自チップ戦略：未来のエコシステムへ</h1>
+            <p class="date">2024年10月27日</p>
+        </header>
+
+        <main class="section-layout">
+            <!-- カード1: XRING O1の発表と性能 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-microchip fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-fire"></i>「XRING O1」独自チップセット爆誕！</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-gear" aria-hidden="true"></i>
+                            <span>製造プロセス: <span class="keyword-tag">3nm</span>最先端技術</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-cube" aria-hidden="true"></i>
+                            <span>CPU: <span class="keyword-tag">10コア</span>高速処理</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-cubes" aria-hidden="true"></i>
+                            <span>GPU: <span class="keyword-tag">16コア</span>グラフィック性能</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-brain" aria-hidden="true"></i>
+                            <span>NPU: <span class="keyword-tag">6コア</span>AI推論専用</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-robot" aria-hidden="true"></i>
+                            <span>AI処理性能: <span class="keyword-tag">44TOPS</span> (<i class="fa-solid fa-arrow-up" style="color: var(--ui-color-5);"></i>Apple A18 Pro <span class="keyword-tag">35TOPS</span>超え！)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+                            <span>搭載モデル: <span class="keyword-tag">Xiaomi 15S Pro</span></span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble variant-1 top">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-bolt fa-lg" style="color: var(--ui-color-2);"></i>
+                        次世代AIスマホの
+                        <br>
+                        <span class="keyword-tag">心臓部</span>がここに！
+                    </span>
+                </div>
+            </div>
+
+            <!-- カード2: 自社開発の3つの目的 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-lightbulb fa-5x" style="color: var(--ui-color-2); animation: fa-flip 2s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-circle-question"></i>なぜ今、独自チップ？</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-truck-ramp-box" aria-hidden="true"></i>
+                            <span>目的1: <span class="keyword-tag">サプライチェーン</span>の安定化</span>
+                            <br><span style="font-size: 14px; margin-left: 30px;"><i class="fa-solid fa-triangle-exclamation" style="color: var(--ui-color-5);"></i>ファーウェイの事例から学習</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-code-branch" aria-hidden="true"></i>
+                            <span>目的2: <span class="keyword-tag">HW/SW</span>の高度な統合</span>
+                            <br><span style="font-size: 14px; margin-left: 30px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--ui-color-1);"></i>最適化されたパフォーマンス</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-forward" aria-hidden="true"></i>
+                            <span>目的3: <span class="keyword-tag">ポスト・スマートフォン時代</span>への布石</span>
+                            <br><span style="font-size: 14px; margin-left: 30px;"><i class="fa-solid fa-house-chimney-user" style="color: var(--ui-color-4);"></i>生活全体のエコシステム構築</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble variant-2 right">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-rocket fa-lg" style="color: var(--ui-color-5);"></i>
+                        未来を見据えた
+                        <br>
+                        <span class="keyword-tag">戦略的投資</span>なんです！
+                    </span>
+                </div>
+            </div>
+
+            <!-- カード3: EV市場への展開とチップ連携 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-car fa-5x" style="color: var(--ui-color-5); animation: fa-beat 2s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-road"></i>「動くスマホ」EVへ！</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-charging-station" aria-hidden="true"></i>
+                            <span>EV市場参入: <span class="keyword-tag">2024年〜</span>本格始動</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-mobile-alt" aria-hidden="true"></i><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><i class="fa-solid fa-car-side" aria-hidden="true"></i>
+                            <span>EVを<span class="keyword-tag">「動くスマートフォン」</span>と定義</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-microchip" aria-hidden="true"></i><i class="fa-solid fa-plus" aria-hidden="true"></i><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+                            <span>独自チップ＋スマホ技術で<span class="keyword-tag">EV競争力UP</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-route" aria-hidden="true"></i>
+                            <span>高度な<span class="keyword-tag">インフォテインメント</span>システム</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-steering-wheel" aria-hidden="true"></i>
+                            <span>先進的な<span class="keyword-tag">自動運転機能</span>を実現</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-car-battery fa-lg" style="color: var(--ui-color-1);"></i>
+                        車載AIで未来を<br>
+                        <span class="keyword-tag">ドライブ</span>する時代！
+                    </span>
+                </div>
+            </div>
+
+            <!-- カード4: 将来のビジョンと戦略 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-globe fa-5x" style="color: var(--ui-color-4); animation: fa-spin 5s linear infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-star"></i>シャオミの描く未来</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-hand-holding-heart" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">AI</span>が<span class="keyword-tag">生活アシスタント</span>となる世界へ</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-network-wired" aria-hidden="true"></i>
+                            <span>EV含む<span class="keyword-tag">次世代エコシステム</span>を主導</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                            <span>単なるスマホ性能競争を<span class="keyword-tag">超えた戦略</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-crown" aria-hidden="true"></i>
+                            <span>目的: <span class="keyword-tag">エコシステム全体</span>での<span class="keyword-tag">主導権</span>確立</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-flask-vial" aria-hidden="true"></i>
+                            <span>独自チップ開発は<span class="keyword-tag">その第一歩</span></span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble variant-1">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-2);"></i>
+                        AIとチップで<br>
+                        新しい<span class="keyword-tag">未来を創造</span>！
+                    </span>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
