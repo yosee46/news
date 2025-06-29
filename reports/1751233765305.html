@@ -1,0 +1,485 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グラフィックレコーディング風インフォグラフィック</title>
+    <style>
+        /* カラーパレットの定義 */
+        :root {
+            --ui-color-1: #1B6C8C; /* UI/UX-1 */
+            --ui-color-2: #BF8136; /* UI/UX-2 */
+            --ui-color-3: #F2E8E4; /* UI/UX-3 */
+            --ui-color-4: #260101; /* UI/UX-4 */
+            --ui-color-5: #BF5656; /* UI/UX-5 */
+        }
+
+        /* フォントとアイコンの読み込み */
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            background-color: #FFF8F5; /* 全体を白背景（# FFF8F5）のキャンバス上に配置 */
+            color: #333333;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow-x: hidden; /* 横スクロールバーを防ぐ */
+        }
+
+        .main-container {
+            max-width: 2000px; /* 横幅：100%（最大2000px程度でセンタリング） */
+            margin: 0 auto;
+            padding: 20px; /* 全体の余白 */
+        }
+
+        /* ヘッダー */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: transparent;
+            position: relative;
+        }
+
+        header .header-icon {
+            color: var(--ui-color-1);
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            font-family: 'Kaisei Decol', serif;
+            font-size: 36px; /* タイトル：36px */
+            color: #333333;
+            font-weight: bold;
+            margin: 0;
+            padding-top: 15px; /* アイコンとの間隔 */
+        }
+
+        header .date {
+            font-size: 14px; /* 日付や補足：14px */
+            color: #777777;
+            margin-top: 10px;
+            font-family: 'Yomogi', cursive;
+        }
+
+        /* レイアウト（4カラム構成） */
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px; /* カード間の余白 */
+            padding: 30px 0;
+        }
+
+        /* カードスタイル */
+        .section-card {
+            flex: 1;
+            min-width: 280px; /* レスポンシブ対応のmin-widthを調整 */
+            max-width: 450px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* コンテンツと吹き出しを上下に配置 */
+            box-sizing: border-box;
+        }
+
+        /* カード内アイコンコンテナ */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0;
+            padding-bottom: 10px;
+        }
+
+        .mega-icon-container h2 {
+            font-family: 'Kaisei Decol', serif; /* カードタイトル */
+            font-size: 24px;
+            color: #555555;
+            margin-top: 10px;
+        }
+
+        /* カードコンテンツ */
+        .card-content {
+            padding: 0 10px 15px;
+            flex-grow: 1; /* スペースを埋める */
+        }
+
+        /* キーワードリスト */
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 16px; /* リスト項目：16px */
+            color: #333333;
+        }
+
+        .keyword-list li i {
+            margin-right: 8px;
+            color: var(--ui-color-2); /* UI/UX-2 */
+            min-width: 16px;
+            font-size: 16px; /* fa-lg相当 */
+            line-height: 1.5; /* テキストとアイコンの行の高さを合わせる */
+        }
+
+        /* キーワードタグ */
+        .keyword-tag {
+            background-color: var(--ui-color-3); /* UI/UX-3 */
+            color: var(--ui-color-4); /* UI/UX-4 */
+            padding: 3px 8px;
+            border-radius: 5px;
+            margin-right: 5px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 16px; /* タグ：16px */
+        }
+
+        /* 手書き風吹き出し */
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 3px solid var(--ui-color-1); /* UI/UX-1 */
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin: 15px 5px;
+            font-family: 'Yomogi', cursive;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+            max-width: calc(100% - 10px); /* カード幅に合わせる */
+            align-self: center; /* カード内で中央に配置 */
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -13px;
+            left: 20px;
+            border-width: 12px 8px 0;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent; /* UI/UX-1 */
+            display: block;
+            width: 0;
+        }
+
+        /* 吹き出しバリエーション */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 20px;
+            transform: rotate(15deg);
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -13px;
+            border-width: 0 8px 12px;
+            transform: rotate(-5deg);
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3;
+            border-color: var(--ui-color-2); /* UI/UX-2 */
+            transform: rotate(1deg);
+        }
+
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent; /* UI/UX-2 */
+        }
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9;
+            border-color: var(--ui-color-5); /* UI/UX-5 */
+            transform: rotate(-2deg);
+        }
+
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent; /* UI/UX-5 */
+        }
+
+        /* 手書き文字 */
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 15px; /* 吹き出し内テキスト：15px */
+            line-height: 1.5;
+            color: #333;
+        }
+        
+        .handwritten .fa-lg {
+            font-size: 1.2em; /* 吹き出し内のアイコンは少し大きめに */
+            vertical-align: middle; /* テキストとアイコンの垂直方向の位置合わせ */
+        }
+
+        /* コードプレビュー */
+        pre {
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 14px; /* コードプレビュー：14px */
+            font-family: monospace; /* 等幅フォント */
+            margin-top: 10px;
+            overflow-x: auto;
+            white-space: pre-wrap; /* 行の折り返し */
+            word-break: break-all; /* 単語の途中での改行 */
+            color: #333;
+        }
+
+        /* アニメーション効果 */
+        @keyframes fade-in-scale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .fade-in-scale {
+            animation: fade-in-scale 0.7s ease-out forwards;
+        }
+
+        /* ホバー時の背景色変化 */
+        .section-card:hover {
+            background-color: var(--ui-color-3); /* UI/UX-3 */
+            transition: background-color 0.3s ease;
+        }
+
+        /* 重要キーワード出現時のハイライト効果 */
+        @keyframes highlight {
+            0% { background-color: transparent; }
+            50% { background-color: var(--ui-color-5); color: white; }
+            100% { background-color: transparent; }
+        }
+        .highlight-keyword {
+            animation: highlight 1.5s ease-in-out infinite alternate;
+        }
+
+
+        /* レスポンシブ対応 */
+        @media (max-width: 1600px) {
+            .section-card {
+                min-width: 280px;
+                max-width: 450px; /* 4カラムを維持するための調整 */
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-card {
+                min-width: 350px; /* 3カラムにするための調整 */
+                max-width: 450px;
+            }
+            .section-layout {
+                gap: 25px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .section-card {
+                min-width: 400px; /* 2カラムにするための調整 */
+                max-width: 550px;
+            }
+            .section-layout {
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-layout {
+                flex-direction: column;
+                padding: 20px;
+            }
+            .section-card {
+                width: 100%;
+                min-width: auto;
+                max-width: 600px; /* センタリングのため */
+                margin: 0 auto;
+            }
+            header h1 {
+                font-size: 32px;
+            }
+            header .header-icon {
+                font-size: 6em !important; /* スマホで大きすぎないように */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <i class="fa-solid fa-chart-line fa-7x header-icon" aria-hidden="true"></i>
+            <h1>最新テック動向 2025年予測レポート</h1>
+            <p class="date">2024年7月25日更新</p>
+        </header>
+
+        <main class="section-layout">
+            <!-- カード1: Visual Studio CodeのAIエディタ化の進展 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-laptop-code fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s;" aria-hidden="true"></i>
+                    <h2>VS Code AIエディタ化が加速！</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-code-branch" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">GitHub Copilot Chat</span> ソースコード公開</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+                            <span>ライセンス: <span class="keyword-tag highlight-keyword">MITライセンス</span>でオープンに！</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+                            <span>目的: 「<span class="keyword-tag">オープンソースのAIエディタ</span>」へ進化</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+                            <span>今後の焦点: 既存AIエディタとの<span class="keyword-tag">差別化</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-terminal" aria-hidden="true"></i>
+                            <span>例: CursorやWindsurfといったAIエディタ</span>
+                        </li>
+                    </ul>
+                    <pre>
+// VS Code AI機能組み込みのイメージ
+const aiEditor = {
+  name: 'VS Code',
+  features: ['Copilot Chat', 'IntelliSense AI'],
+  license: 'MIT',
+  future: 'Built-in AI capabilities'
+};</pre>
+                </div>
+                
+                <div class="speech-bubble variant-1">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-circle-check fa-lg" style="color: var(--ui-color-2);"></i>
+                        VS Code本体への<br>
+                        AI機能組み込みが<br>
+                        ぐっと容易になります！
+                    </span>
+                </div>
+            </div>
+
+            <!-- カード2: 2025年後半に投入される新型SoCの予測 (概要) -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-microchip fa-5x" style="color: var(--ui-color-2); animation: fa-spin 5s linear infinite;" aria-hidden="true"></i>
+                    <h2>2025年後半！次世代SoC予測</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-clock" aria-hidden="true"></i>
+                            <span>投入時期: <span class="keyword-tag">2025年後半</span>を予測</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-industry" aria-hidden="true"></i>
+                            <span>主要メーカーが新型SoCを準備中</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-cogs" aria-hidden="true"></i>
+                            <span>製造プロセス: <span class="keyword-tag">TSMC 3nm</span>が主流に！</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+                            <span>主な用途: スマートフォン、タブレット、PC向け</span>
+                        </li>
+                    </ul>
+                    <div class="speech-bubble right">
+                        <span class="handwritten">
+                            <i class="fa-solid fa-rocket fa-lg" style="color: var(--ui-color-1);"></i>
+                            性能と電力効率が<br>
+                            飛躍的に向上する見込み！
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- カード3: Appleの新型SoC (A19 Pro, M5) -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-brands fa-apple fa-5x" style="color: #A2AAAD; animation: fa-fade 3s infinite alternate;" aria-hidden="true"></i>
+                    <h2>Appleチップの進化ロードマップ</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-mobile-alt" aria-hidden="true"></i>
+                            <span>スマートフォン向け: <span class="keyword-tag">A19 Pro</span> (TSMC 3nm)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-tablet-alt" aria-hidden="true"></i>
+                            <span>タブレット/PC向け: <span class="keyword-tag">M5チップ</span>搭載予測！</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-laptop" aria-hidden="true"></i>
+                            <span>対象製品: 新型iPad Pro、MacBook Pro</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                            <span>更なる高性能化と効率化を実現へ</span>
+                        </li>
+                    </ul>
+                    <div class="speech-bubble variant-2 top">
+                        <span class="handwritten">
+                            <i class="fa-solid fa-brain fa-lg" style="color: var(--ui-color-5);"></i>
+                            特にM5は、AI処理能力<br>
+                            の大幅な強化に注目！
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- カード4: Android/その他メーカーの新型SoC -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-brands fa-android fa-5x" style="color: #3DDC84; animation: fa-shake 2s infinite;" aria-hidden="true"></i>
+                    <h2>Android陣営の戦略SoC</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">Qualcomm</span>: Snapdragon 8 Elite 2 (TSMC 3nm)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-chip" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">MediaTek</span>: Dimensity 9500</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-dragon" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">Huawei</span>: Kirin 9030</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-ring" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">Xiaomi</span>: 独自開発XRING O2</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-users-rays" aria-hidden="true"></i>
+                            <span>各社が独自技術で差別化戦略</span>
+                        </li>
+                    </ul>
+                    <div class="speech-bubble">
+                        <span class="handwritten">
+                            <i class="fa-solid fa-bolt fa-lg" style="color: var(--ui-color-1);"></i>
+                            激しい競争で、<br>
+                            革新的な技術が期待されます！
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
+```
