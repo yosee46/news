@@ -1,0 +1,432 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グラフィックレコーディング風インフォグラフィック</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        :root {
+            --ui-color-1: #1B6C8C; /* UI/UX-1 */
+            --ui-color-2: #BF8136; /* UI/UX-2 */
+            --ui-color-3: #F2E8E4; /* UI/UX-3 */
+            --ui-color-4: #260101; /* UI/UX-4 */
+            --ui-color-5: #BF5656; /* UI/UX-5 */
+            --bg-color: #FFF8F5; /* Overall white background */
+            --text-color-dark: #333333;
+            --text-color-medium: #555555;
+            --text-color-light: #777777;
+            --code-bg: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color-dark);
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 2000px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-family: 'Kaisei Decol', serif;
+            font-size: 36px;
+            color: var(--text-color-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-weight: bold;
+        }
+
+        header h1 i {
+            color: var(--ui-color-1);
+            animation: fa-beat-fade 2s infinite;
+        }
+
+        header p.date {
+            font-size: 14px;
+            color: var(--text-color-light);
+        }
+
+        /* Section Layout (Flex Container) */
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            padding-bottom: 50px; /* 余白を確保 */
+        }
+
+        /* Card Style */
+        .section-card {
+            flex: 1;
+            min-width: 280px; /* Adjust min-width for 4-column potential */
+            max-width: 450px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: scale(0.95);
+            animation: fade-in-scale 0.8s forwards ease-out;
+        }
+
+        .section-card:nth-child(1) { animation-delay: 0.1s; }
+        .section-card:nth-child(2) { animation-delay: 0.3s; }
+        .section-card:nth-child(3) { animation-delay: 0.5s; }
+        .section-card:nth-child(4) { animation-delay: 0.7s; }
+
+        @keyframes fade-in-scale {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Card Hover Animation */
+        .section-card:hover {
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15);
+            transform: translateY(-5px) scale(1.01);
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Card inner elements */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .mega-icon-container h2 {
+            font-family: 'Kaisei Decol', serif;
+            font-size: 24px;
+            color: var(--text-color-medium);
+            margin-top: 10px;
+        }
+
+        .card-content {
+            padding: 0 10px 15px;
+        }
+
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 16px;
+            color: var(--text-color-dark);
+        }
+
+        .keyword-list li i {
+            margin-right: 8px;
+            color: var(--ui-color-2); /* Small icon color */
+            min-width: 16px;
+            font-size: 16px;
+            line-height: 1.5; /* Align icon with text */
+        }
+
+        /* Keyword Tag */
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 3px 8px;
+            border-radius: 5px;
+            margin-right: 5px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 15px;
+            white-space: nowrap; /* Prevent tag from breaking */
+            transition: background-color 0.3s ease;
+        }
+
+        .keyword-tag:hover {
+            background-color: var(--ui-color-2);
+            color: white;
+        }
+
+        /* Handdrawn Speech Bubble */
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin: 15px 5px;
+            font-family: 'Yomogi', cursive;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+            font-size: 15px;
+            color: var(--text-color-dark);
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .speech-bubble:hover {
+            transform: rotate(0deg) scale(1.02);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.15);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -13px; /* ポインターの位置調整 */
+            left: 20px;
+            border-width: 12px 8px 0;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* Speech bubble variations */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 20px;
+            transform: rotate(15deg);
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -13px;
+            border-width: 0 8px 12px;
+            border-color: var(--ui-color-1) transparent; /* Base color for top pointer */
+            transform: rotate(-5deg);
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3;
+            border-color: var(--ui-color-2);
+            transform: rotate(1deg);
+        }
+
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent;
+        }
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9;
+            border-color: var(--ui-color-5);
+            transform: rotate(-2deg);
+        }
+
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent;
+        }
+
+        /* Handwritten text */
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 15px;
+            line-height: 1.5;
+            color: var(--text-color-dark);
+        }
+
+        .handwritten i {
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        /* Code Preview */
+        pre {
+            background: var(--code-bg);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Source Code Pro', monospace; /* Fallback for mono */
+            margin-top: 10px;
+            overflow-x: auto;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1600px) {
+            .section-card {
+                min-width: 300px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-card {
+                min-width: 350px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .section-card {
+                min-width: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-layout {
+                flex-direction: column;
+            }
+            
+            .section-card {
+                width: 100%;
+                min-width: auto;
+                max-width: 600px; /* Limit width on small screens for better readability */
+                margin: 0 auto;
+            }
+        }
+
+        /* Custom Font Awesome animations */
+        @keyframes fa-bounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        @keyframes fa-beat-fade {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.9); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <i class="fa-solid fa-chart-line fa-7x" aria-hidden="true"></i>
+                最新テックトレンド解析
+            </h1>
+            <p class="date">2023年10月27日更新</p>
+        </header>
+
+        <div class="section-layout">
+
+            <!-- Card 1: Visual Studio CodeのAIエディタ化の進展 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-laptop-code fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                    <h2>VS Code AIエディタ化の進展</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-code-branch" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">GitHub Copilot Chat</span>ソースコード公開 (MITライセンス)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>
+                            <span>現在のバージョンは<span class="keyword-tag">プレリリース版 (v0.29)</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-brain" aria-hidden="true"></i>
+                            <span>目標は「<span class="keyword-tag">オープンソースのAIエディタ</span>」</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            <span>VS Code本体への<span class="keyword-tag">AI機能組み込み</span>の第一歩</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-arrows-split-up-and-down" aria-hidden="true"></i>
+                            <span>既存AIエディタ (<span class="keyword-tag">Cursor</span>, <span class="keyword-tag">Windsurf</span>) の差別化が焦点</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-code" aria-hidden="true"></i>
+                            <span>関連コードスニペット例:</span>
+                        </li>
+                    </ul>
+                    
+                    <pre>
+// GitHub Copilot Chat (JavaScript)
+function generateCode(prompt) {
+  // AI-powered code generation logic
+  return `console.log('${prompt}によって生成されたコード');`;
+}</pre>
+                </div>
+                
+                <div class="speech-bubble variant-1 top">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-2);"></i>
+                        Microsoftの<span class="keyword-tag">AI戦略</span>の<br>
+                        重要な一歩だよ！<br>
+                        開発効率が<span class="keyword-tag">爆上げ</span>するかも！？
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 2: 2025年後半 新型SoC投入予測 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-microchip fa-5x" style="color: var(--ui-color-2); animation: fa-flip 2s infinite;" aria-hidden="true"></i>
+                    <h2>2025年後半 SoCトレンド予測</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-calendar-alt" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">2025年後半</span>に新フラッグシップSoC投入予測</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-users-gear" aria-hidden="true"></i>
+                            <span>主要<span class="keyword-tag">4社</span>からの投入見込み:</span>
+                            <ul>
+                                <li><i class="fa-brands fa-apple" aria-hidden="true"></i> Apple: <span class="keyword-tag">A19 Pro</span>, <span class="keyword-tag">M5</span></li>
+                                <li><i class="fa-brands fa-qualcomm" aria-hidden="true"></i> Qualcomm: <span class="keyword-tag">Snapdragon 8 Elite 2</span></li>
+                                <li><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> MediaTek: <span class="keyword-tag">Dimensity 9500</span></li>
+                                <li><i class="fa-solid fa-circle-nodes" aria-hidden="true"></i> Huawei: <span class="keyword-tag">Kirin 9030</span></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-industry" aria-hidden="true"></i>
+                            <span>AppleとQualcommは<span class="keyword-tag">TSMC 3nm「N3P」</span>採用予想</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-gem" aria-hidden="true"></i>
+                            <span>Xiaomiも独自開発チップ「<span class="keyword-tag">XRING O2</span>」を継続</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble variant-2 right">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-bolt fa-lg" style="color: var(--ui-color-5);"></i>
+                        モバイルもPCも<br>
+                        <span class="keyword-tag">超高性能化</span>の時代に！<br>
+                        新しい体験が待ってるね！
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
+```
