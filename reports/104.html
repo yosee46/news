@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Copilot ChatとVS Code AI進化のインフォグラフィック</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap">
+    <style>
+        :root {
+            --ui-color-1: #1B6C8C; /* Blue */
+            --ui-color-2: #BF8136; /* Orange */
+            --ui-color-3: #F2E8E4; /* Light Peach */
+            --ui-color-4: #260101; /* Dark Brown */
+            --ui-color-5: #BF5656; /* Red */
+        }
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #FFF8F5; /* 全体を白背景 */
+            color: #333333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1800px; /* 横幅最大2000px程度 */
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* ヘッダー */
+        .main-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            position: relative;
+        }
+
+        .main-header i {
+            color: var(--ui-color-1);
+            margin-bottom: 10px;
+        }
+
+        .main-header h1 {
+            font-size: 36px;
+            color: #333333;
+            font-weight: bold;
+            margin: 10px 0 5px;
+            font-family: 'Kaisei Decol', serif;
+        }
+
+        .main-header .date {
+            font-size: 14px;
+            color: #777777;
+        }
+
+        /* 全体レイアウト - 4カラム構成 */
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px; /* カード間の余白 */
+            align-items: stretch; /* 高さ合わせ */
+        }
+
+        /* カードスタイル */
+        .section-card {
+            flex: 1;
+            min-width: 300px; /* 最小幅調整 */
+            max-width: 420px; /* 最大幅調整 */
+            background-color: white;
+            border-radius: 20px;
+            padding: 25px 20px; /* パディング調整 */
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.1); /* 影を強調 */
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            border: 3px solid transparent; /* ホバー時のボーダー用 */
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px); /* ホバー時の浮き上がり */
+            box-shadow: 10px 10px 25px rgba(0,0,0,0.15);
+            border-color: var(--ui-color-2); /* ホバー時のボーダー色 */
+        }
+
+        /* カード内アイコンコンテナ */
+        .mega-icon-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .mega-icon-container h2 {
+            font-size: 24px;
+            color: #555555;
+            margin-top: 15px;
+            margin-bottom: 0;
+            font-family: 'Kaisei Decol', serif;
+        }
+        .mega-icon-container h2 i {
+            margin-right: 10px;
+            color: var(--ui-color-1);
+        }
+
+        /* カードコンテンツ */
+        .card-content {
+            padding: 0 5px 15px;
+            flex-grow: 1; /* コンテンツ部分が伸びるように */
+        }
+
+        /* キーワードリスト */
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            margin-bottom: 12px; /* 行間を少し広げる */
+            display: flex;
+            align-items: flex-start;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        .keyword-list li i {
+            margin-right: 10px;
+            color: var(--ui-color-2); /* アイコンの色 */
+            font-size: 1.1em; /* 少し大きめ */
+            min-width: 20px; /* アイコンの位置を揃える */
+            text-align: center;
+            padding-top: 2px; /* テキストとの垂直位置調整 */
+        }
+
+        /* キーワードタグ */
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 4px 10px;
+            border-radius: 8px; /* 丸みを強く */
+            margin-right: 8px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 15px; /* タグのフォントサイズ */
+            white-space: nowrap; /* 折り返しを防ぐ */
+        }
+
+        /* 手書き風吹き出し */
+        .speech-bubble {
+            position: relative;
+            background: #ffffff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 25px; /* 丸みを強く */
+            padding: 12px 18px; /* パディング調整 */
+            margin: 25px 10px 10px; /* 余白調整 */
+            font-family: 'Yomogi', cursive;
+            box-shadow: 4px 4px 12px rgba(0,0,0,0.15); /* 影を強調 */
+            transform: rotate(-1.5deg); /* 少し回転 */
+            z-index: 10;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            display: block;
+            width: 0;
+            z-index: 10;
+        }
+        .speech-bubble.bottom-left::after {
+            bottom: -18px; /* 吹き出しのしっぽの位置 */
+            left: 20%;
+            border-width: 15px 10px 0; /* 大きく */
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            transform: rotate(-5deg);
+        }
+        .speech-bubble.bottom-right::after {
+            bottom: -18px;
+            right: 20%;
+            left: auto;
+            border-width: 15px 10px 0;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            transform: rotate(5deg);
+        }
+        .speech-bubble.top-left::after {
+            top: -18px;
+            left: 20%;
+            bottom: auto;
+            border-width: 0 10px 15px;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            transform: rotate(5deg);
+        }
+        .speech-bubble.top-right::after {
+            top: -18px;
+            right: 20%;
+            left: auto;
+            bottom: auto;
+            border-width: 0 10px 15px;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            transform: rotate(-5deg);
+        }
+
+
+        /* 吹き出しバリエーション */
+        .speech-bubble.variant-1 {
+            background: #FFF9E3; /* UI/UX-3をベースに */
+            border-color: var(--ui-color-2);
+            transform: rotate(1.5deg);
+        }
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent;
+        }
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9; /* UI/UX-3をベースに */
+            border-color: var(--ui-color-5);
+            transform: rotate(-2.5deg);
+        }
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent;
+        }
+
+        /* 手書き文字 */
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 18px; /* サイズを大きく */
+            line-height: 1.6;
+            color: #333;
+            display: block; /* 複数行対応 */
+            text-align: center;
+        }
+        .handwritten i {
+            margin-right: 8px;
+            color: inherit; /* 親の文字色を継承 */
+            font-size: 1em;
+        }
+        .handwritten .keyword-tag {
+            font-size: 16px; /* 吹き出し内のタグは少し大きめに */
+            margin-top: 5px;
+        }
+
+        /* アニメーション */
+        @keyframes fade-in-scale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .fade-in-scale {
+            animation: fade-in-scale 0.8s ease-out forwards;
+        }
+        /* スクロール連動アニメーション (JavaScriptで制御) */
+        .hidden-card {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .visible-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+
+        /* レスポンシブ対応 */
+        @media (max-width: 1700px) {
+            .section-layout {
+                gap: 25px;
+            }
+            .section-card {
+                min-width: 300px;
+                max-width: 45%; /* 2カラム */
+            }
+        }
+        @media (max-width: 1200px) {
+            .section-card {
+                min-width: 320px;
+                max-width: 48%; /* 2カラム */
+            }
+        }
+
+        @media (max-width: 900px) {
+            .section-card {
+                min-width: 300px;
+                max-width: 100%; /* 1カラム */
+            }
+            .main-header h1 {
+                font-size: 32px;
+            }
+        }
+        @media (max-width: 768px) {
+            .section-layout {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .section-card {
+                width: 95%; /* 幅を広げる */
+                min-width: auto;
+                max-width: 95%;
+                margin: 0 auto; /* 中央寄せ */
+            }
+        }
+        @media (max-width: 500px) {
+            .main-header h1 {
+                font-size: 28px;
+            }
+            .mega-icon-container h2 {
+                font-size: 22px;
+            }
+            .handwritten {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <i class="fa-solid fa-brain fa-7x" style="color: var(--ui-color-1);"></i>
+            <h1>GitHub Copilot ChatとVS CodeのAI進化</h1>
+            <p class="date">AI開発ツールの最前線</p>
+        </header>
+
+        <div class="section-layout">
+            <!-- カード1: Copilot Chatのオープンソース化 -->
+            <div class="section-card hidden-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-code-branch fa-6x" style="color: var(--ui-color-1); animation: fa-bounce 2.5s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-cloud-arrow-up fa-lg"></i> Copilot Chat ソースコード公開</h2>
+                </div>
+
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-circle-info fa-lg" aria-hidden="true"></i>
+                            <span>現在の状況: <span class="keyword-tag">プレリリース版 v0.29</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-gavel fa-lg" aria-hidden="true"></i>
+                            <span>ライセンス: <span class="keyword-tag">MITライセンス</span>で<span class="keyword-tag">オープンソース化</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-laptop-code fa-lg" aria-hidden="true"></i>
+                            <span>対象: <span class="keyword-tag">Visual Studio Code</span> 拡張機能</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="speech-bubble variant-1 bottom-left">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-2);"></i>
+                        MicrosoftのAIエディタ戦略の
+                        <br>
+                        <span class="keyword-tag">第一歩</span>になるかも！
+                    </span>
+                </div>
+            </div>
+
+            <!-- カード2: VS CodeのAIエディタ化と競合 -->
+            <div class="section-card hidden-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-robot fa-6x" style="color: var(--ui-color-2); animation: fa-flip 3s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-gears fa-lg"></i> VS Code AIエディタ化の展望</h2>
+                </div>
+
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-chart-line fa-lg" aria-hidden="true"></i>
+                            <span>Microsoftの方針: VS Codeを<br><span class="keyword-tag">「オープンソースのAIエディタ」</span>へ進化</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-plug fa-lg" aria-hidden="true"></i>
+                            <span>目標: <span class="keyword-tag">AI機能を本体に組み込み</span>へ</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-people-arrows fa-lg" aria-hidden="true"></i>
+                            <span>競合への影響: 先行AIエディタ<br>（<span class="keyword-tag">Cursor</span>, <span class="keyword-tag">Windsurf</span>）との<span class="keyword-tag">差別化</span>が焦点に！</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="speech-bubble bottom-right">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-circle-question fa-lg" style="color: var(--ui-color-1);"></i>
+                        今後のAIエディタの進化に
+                        <br>
+                        目が離せない！
+                    </span>
+                </div>
+            </div>
+
+            <!-- カード3: AIエディタ市場の未来 -->
+            <div class="section-card hidden-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-lightbulb fa-6x" style="color: var(--ui-color-5); animation: fa-beat-fade 2s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-magnifying-glass-chart fa-lg"></i> AIエディタ市場の未来</h2>
+                </div>
+
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-chart-simple fa-lg" aria-hidden="true"></i>
+                            <span>今後のトレンド: AI機能の<span class="keyword-tag">標準搭載</span>と<span class="keyword-tag">カスタマイズ性</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-handshake fa-lg" aria-hidden="true"></i>
+                            <span>オープンソース化の意義: <span class="keyword-tag">コミュニティの貢献</span>による加速</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-brain fa-lg" aria-hidden="true"></i>
+                            <span>開発者のメリット: AIがより身近に、<span class="keyword-tag">生産性向上</span>へ</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="speech-bubble variant-2 top-left">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-flask fa-lg" style="color: var(--ui-color-5);"></i>
+                        開発者にとって、
+                        <br>
+                        新たな<span class="keyword-tag">創造性</span>の
+                        <br>
+                        可能性が広がる！
+                    </span>
+                </div>
+            </div>
+
+            <!-- カード4: AIと開発ワークフロー -->
+            <div class="section-card hidden-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-code fa-6x" style="color: var(--ui-color-4); animation: fa-fade 2s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-arrows-spin fa-lg"></i> AIと開発ワークフロー</h2>
+                </div>
+
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-puzzle-piece fa-lg" aria-hidden="true"></i>
+                            <span>AIの役割: コード生成、デバッグ、<span class="keyword-tag">ドキュメント作成</span>など</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-user-gear fa-lg" aria-hidden="true"></i>
+                            <span>開発者の役割: AIの活用と<span class="keyword-tag">最終的な判断</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-rocket fa-lg" aria-hidden="true"></i>
+                            <span>期待される効果: 開発サイクルの<span class="keyword-tag">高速化</span>と<span class="keyword-tag">品質向上</span></span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="speech-bubble variant-1 top-right">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-terminal fa-lg" style="color: var(--ui-color-2);"></i>
+                        AIは強力な<span class="keyword-tag">相棒</span>として
+                        <br>
+                        私たちの開発を支援！
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // スクロール連動アニメーション
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.section-card');
+            const observerOptions = {
+                root: null, // ビューポートをルートとする
+                rootMargin: '0px',
+                threshold: 0.1 // 10%見えたら発火
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible-card');
+                        entry.target.classList.remove('hidden-card');
+                        observer.unobserve(entry.target); // 一度表示されたら監視をやめる
+                    }
+                });
+            }, observerOptions);
+
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
