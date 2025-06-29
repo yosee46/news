@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Studio Code AIエディタ進化レポート</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3C!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--%3E%3Cpath d='M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L331.8 82.7c-9.7 9.7-16.5 22.8-19.3 36.9L283 293c-2.4 12.3-.6 24.8 4.7 36.1s13 21 23.3 29.5c.3 .3 .6 .5 .8 .8l125.3 125.3c9.7 9.7 20.3 16.5 31.6 19.3s23.7 2.4 35.1-4.7c11.3-7.2 21.6-17.5 29.8-29.8s12.2-24.3 12.2-36.1c0-11.8-4.7-23.7-12.8-35.1L405.6 240.5c-7.2-11.3-17.5-21.6-29.8-29.8s-24.3-12.2-36.1-12.2c-11.8 0-23.7 4.7-35.1 12.8L120.3 359.7l49.4 49.4c17.6 17.6 46.2 17.6 63.8 0s17.6-46.2 0-63.8L183.1 319.6l106.6-106.6c17.6-17.6 17.6-46.2 0-63.8s-46.2-17.6-63.8 0L98.5 255.4 0 353.9c-21.9 21.9-21.9 57.3 0 79.2s57.3 21.9 79.2 0L249 265.4c9.7-9.7 22.8-16.5 36.9-19.3L389.7 283c12.3-2.4 24.8-.6 36.1 4.7s21 13 29.5 23.3c.3 .3 .5 .6 .8 .8L471.6 395.7c21.9 21.9 57.3 21.9 79.2 0s21.9-57.3 0-79.2L427.6 112.5c-9.7-9.7-16.5-22.8-19.3-36.9L389.7 283c-2.4-12.3-.6-24.8 4.7-36.1s13-21 23.3-29.5c.3-.3.6-.5.8-.8L471.6 21.7z'/%3E%3C/svg%3E" type="image/svg+xml">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        :root {
+            --ui-color-1: #1B6C8C; /* UI/UX-1 */
+            --ui-color-2: #BF8136; /* UI/UX-2 */
+            --ui-color-3: #F2E8E4; /* UI/UX-3 */
+            --ui-color-4: #260101; /* UI/UX-4 */
+            --ui-color-5: #BF5656; /* UI/UX-5 */
+        }
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #FFF8F5;
+            color: #333333;
+            line-height: 1.5;
+            overflow-x: hidden; /* Prevent horizontal scroll from animations */
+        }
+
+        /* Overall layout */
+        .infographic-container {
+            max-width: 2000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #FFF8F5; /* Canvas background */
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            animation: fade-in-up 1s ease-out;
+        }
+
+        .main-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .main-header .header-icon {
+            color: var(--ui-color-1);
+            margin-bottom: 10px;
+            animation: fa-beat-fade 3s infinite alternate;
+        }
+
+        .main-header h1 {
+            font-size: 36px;
+            color: #333333;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-family: 'Kaisei Decol', sans-serif;
+        }
+
+        .main-header .date {
+            font-size: 14px;
+            color: #777777;
+        }
+
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        /* Card styles */
+        .section-card {
+            flex: 1;
+            min-width: 280px;
+            max-width: 450px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Pushes content and bubble apart if needed */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0; /* for scroll animation */
+            transform: scale(0.95); /* for scroll animation */
+        }
+
+        .section-card.animate-visible {
+            animation: fade-in-scale 1s forwards;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15);
+        }
+
+        /* Card internal elements */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .mega-icon-container i {
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .mega-icon-container h2 {
+            font-size: 24px;
+            color: #555555;
+            margin: 0;
+            padding-top: 5px;
+            font-family: 'Kaisei Decol', sans-serif;
+            position: relative; /* For icon alignment */
+            padding-left: 20px; /* Space for icon */
+            display: inline-block; /* Allow icon to sit next to it */
+        }
+        .mega-icon-container h2 i {
+            position: absolute;
+            left: -10px; /* Adjust as needed */
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px !important; /* Smaller than main icon */
+            color: var(--ui-color-2);
+            animation: none !important; /* Disable icon animation for these */
+        }
+
+
+        .card-content {
+            padding: 0 10px 15px;
+            flex-grow: 1; /* Allows content to take up available space */
+        }
+
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        .keyword-list li i {
+            margin-right: 8px;
+            color: var(--ui-color-2);
+            min-width: 16px;
+            font-size: 1em; /* Ensures consistent size for fa-lg */
+        }
+
+        .list-heading {
+            font-size: 18px;
+            color: #333333;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .list-heading i {
+            margin-right: 8px;
+            color: var(--ui-color-1);
+        }
+
+        /* Keyword tags */
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 3px 8px;
+            border-radius: 5px;
+            margin-right: 5px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 15px; /* Adjust slightly smaller for tags */
+        }
+
+        /* Speech bubbles */
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin: 25px 5px 5px; /* Increased top margin for connection */
+            font-family: 'Yomogi', cursive;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+            align-self: flex-end; /* Align to the bottom of the card */
+            min-height: 80px; /* Ensure some height for content */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .speech-bubble:hover {
+            transform: rotate(0deg) scale(1.02);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -13px;
+            left: 20px;
+            border-width: 12px 8px 0;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* Speech bubble variations */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 20px;
+            transform: rotate(15deg);
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -13px;
+            border-width: 0 8px 12px;
+            transform: rotate(-5deg);
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3;
+            border-color: var(--ui-color-2);
+            transform: rotate(1deg);
+        }
+
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent;
+        }
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9;
+            border-color: var(--ui-color-5);
+            transform: rotate(-2deg);
+        }
+
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent;
+        }
+
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+            display: block; /* Ensure lines break correctly */
+        }
+        .handwritten i {
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+
+        /* Code preview */
+        pre {
+            background: #f5f5f5;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Cascadia Code', 'Consolas', 'Monaco', monospace;
+            margin-top: 15px;
+            overflow-x: auto;
+            box-shadow: inset 1px 1px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Animations */
+        @keyframes fade-in-scale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Font Awesome specific animations from their library */
+
+        /* Responsive design */
+        @media (max-width: 1600px) {
+            .section-card {
+                max-width: 48%; /* Adjust for 2 columns on larger screens */
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-card {
+                min-width: 350px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .section-card {
+                max-width: 90%; /* Single column on tablets */
+            }
+            .section-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .main-header h1 {
+                font-size: 32px;
+            }
+            .main-header .header-icon {
+                font-size: 5em !important;
+            }
+            .section-card {
+                width: 95%;
+                min-width: auto;
+            }
+            .mega-icon-container h2 {
+                font-size: 22px;
+            }
+            .list-heading {
+                font-size: 17px;
+            }
+            .keyword-list li {
+                font-size: 15px;
+            }
+            .handwritten {
+                font-size: 14px;
+            }
+            pre {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-header h1 {
+                font-size: 28px;
+            }
+            .mega-icon-container h2 {
+                font-size: 20px;
+            }
+            .handwritten {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="infographic-container">
+        <header class="main-header">
+            <i class="fa-solid fa-laptop-code fa-7x header-icon" aria-hidden="true"></i>
+            <h1>Visual Studio CodeのAI進化ロードマップ</h1>
+            <p class="date">2023年10月26日 公開情報より</p>
+        </header>
+
+        <section class="section-layout">
+            <!-- Card 1: GitHub Copilot Chatのオープンソース化 -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-brands fa-github fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-code"></i> Copilot Chat オープンソース化</h2>
+                </div>
+                <div class="card-content">
+                    <p class="list-heading"><i class="fa-solid fa-circle-info"></i> 詳細情報</p>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-terminal" aria-hidden="true"></i>
+                            <span>対象: <span class="keyword-tag">Visual Studio Code</span>の<span class="keyword-tag">GitHub Copilot Chat</span>拡張機能</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+                            <span>ライセンス: <span class="keyword-tag">MITライセンス</span>で公開</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-code-branch" aria-hidden="true"></i>
+                            <span>現在のバージョン: <span class="keyword-tag">0.29 プレリリース版</span></span>
+                        </li>
+                    </ul>
+
+                    <p class="list-heading"><i class="fa-solid fa-book"></i> コード公開の意義</p>
+                    <pre>
+// Copilot Chat Source (Example)
+const isOSS = true;
+if (isOSS) {
+  console.log("Community collaboration starts!");
+}
+                    </pre>
+                </div>
+                <div class="speech-bubble top variant-1">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-people-arrows fa-lg" style="color: var(--ui-color-2);"></i>
+                        <span class="keyword-tag">透明性</span>と
+                        <br>
+                        <span class="keyword-tag">コミュニティ貢献</span>の
+                        <br>
+                        大きな一歩だね！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 2: AIエディタへの第一歩 -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-robot fa-5x" style="color: var(--ui-color-2); animation: fa-beat-fade 2.5s infinite alternate;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-brain"></i> AIエディタへの変革</h2>
+                </div>
+                <div class="card-content">
+                    <p class="list-heading"><i class="fa-solid fa-arrow-right"></i> Microsoftのビジョン</p>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">Visual Studio Code</span>を「オープンソースのAIエディタ」へ</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">あらゆる機能</span>にAIを<span class="keyword-tag">統合</span>する方向性</span>
+                        </li>
+                    </ul>
+
+                    <p class="list-heading"><i class="fa-solid fa-link"></i> Copilot Chatとの関連</p>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+                            <span>VS Code本体へのAI機能統合には、Copilot Chatの<span class="keyword-tag">オープンソース化</span>が必須</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="speech-bubble right variant-2">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-chart-line fa-lg" style="color: var(--ui-color-5);"></i>
+                        これは<span class="keyword-tag">Microsoft</span>の
+                        <br>
+                        開発ツール戦略における
+                        <br>
+                        <span class="keyword-tag">重要な転換点</span>だよ！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 3: 競合他社への影響 -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-cubes-stacked fa-5x" style="color: var(--ui-color-5); animation: fa-flip 2s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-arrows-left-right"></i> 競合環境と差別化</h2>
+                </div>
+                <div class="card-content">
+                    <p class="list-heading"><i class="fa-solid fa-users"></i> 先行するAIエディタ</p>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-laptop-code" aria-hidden="true"></i>
+                            <span>AI機能で先行する<span class="keyword-tag">Visual Studio Codeのフォーク製品</span>が存在</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-terminal" aria-hidden="true"></i>
+                            <span>例: <span class="keyword-tag">Cursor</span>、<span class="keyword-tag">Windsurf</span>など</span>
+                        </li>
+                    </ul>
+
+                    <p class="list-heading"><i class="fa-solid fa-question-circle"></i> 今後の展望</p>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <span>これらフォーク製品が、今後どのように<span class="keyword-tag">差別化</span>を図っていくかに注目</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="speech-bubble variant-1">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-fist-raised fa-lg" style="color: var(--ui-color-2);"></i>
+                        AIエディタ市場の
+                        <br>
+                        <span class="keyword-tag">競争が激化</span>しそうだね！
+                        <br>
+                        ユーザーには選択肢が増える！
+                    </span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Intersection Observer for scroll animations
+        const cards = document.querySelectorAll('.section-card');
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-visible');
+                    observer.unobserve(entry.target); // Stop observing once animated
+                }
+            });
+        }, {
+            threshold: 0.2 // Trigger when 20% of the card is visible
+        });
+
+        cards.forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
