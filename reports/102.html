@@ -1,0 +1,558 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グラフィックレコーディング風インフォグラフィック</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        :root {
+            --ui-color-1: #1B6C8C; /* UI/UX-1 */
+            --ui-color-2: #BF8136; /* UI/UX-2 */
+            --ui-color-3: #F2E8E4; /* UI/UX-3 */
+            --ui-color-4: #260101; /* UI/UX-4 */
+            --ui-color-5: #BF5656; /* UI/UX-5 */
+            --bg-color: #FFF8F5; /* Overall white background */
+        }
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            background-color: var(--bg-color);
+            color: #333333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Kaisei Decol', sans-serif;
+            color: #333333;
+        }
+
+        /* Infographic Container */
+        .infographic-container {
+            max-width: 2000px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Header */
+        .infographic-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 20px;
+        }
+
+        .infographic-header h1 {
+            font-size: 36px;
+            color: #333333;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            line-height: 1.2;
+        }
+
+        .infographic-header h1 i {
+            font-size: 7em; /* fa-7x */
+            color: var(--ui-color-1);
+            animation: fa-beat-fade 3s infinite; /* Header icon animation */
+        }
+
+        .infographic-header p {
+            font-size: 14px;
+            color: #777777;
+            margin-top: 5px;
+        }
+
+        /* Section Layout */
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            align-items: stretch; /* Cards maintain same height */
+        }
+
+        /* Card Style */
+        .section-card {
+            flex: 1;
+            min-width: 280px; /* Adjusted for better responsiveness in 4-col */
+            max-width: 450px;
+            background-color: white;
+            border-radius: 25px; /* Slightly more rounded */
+            padding: 25px;
+            box-shadow: 6px 6px 18px rgba(0,0,0,0.12); /* Softer, larger shadow */
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease; /* Smooth transition for hover */
+            transform: translateY(0); /* For hover lift effect */
+            opacity: 0; /* For fade-in-scale animation */
+            transform: scale(0.98); /* For fade-in-scale animation */
+        }
+
+        .section-card.fade-in-scale.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .section-card:hover {
+            background-color: var(--ui-color-3); /* Background color change on hover */
+            box-shadow: 8px 8px 25px rgba(0,0,0,0.18); /* Enhanced shadow on hover */
+            transform: translateY(-8px); /* Slight lift on hover */
+        }
+
+        /* Card Internal Elements */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0 25px;
+        }
+
+        .mega-icon-container i {
+            margin-bottom: 15px; /* Space between icon and title */
+        }
+
+        .mega-icon-container h2 {
+            font-size: 24px;
+            color: #555555;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .mega-icon-container h2 i {
+            font-size: 1.2em; /* Adjust icon size relative to title */
+            color: var(--ui-color-2);
+            margin-bottom: 0; /* Reset margin for inline icon */
+        }
+
+        .card-content {
+            padding: 0 10px 15px;
+        }
+
+        /* Keyword List */
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        .keyword-list li i {
+            margin-right: 10px;
+            color: var(--ui-color-2);
+            min-width: 18px; /* Ensure icon alignment */
+            font-size: 1.1em; /* Slightly larger inline icons */
+            padding-top: 2px; /* Align icon better with text */
+        }
+
+        /* Keyword Tag */
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-right: 6px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 15px;
+            white-space: nowrap; /* Prevent tag breaking */
+        }
+
+        /* Highlight animation for important tags */
+        @keyframes highlight-pulse {
+            0% { background-color: var(--ui-color-3); }
+            50% { background-color: var(--ui-color-2); color: white; }
+            100% { background-color: var(--ui-color-3); }
+        }
+        .keyword-tag.highlight {
+            animation: highlight-pulse 2s ease-in-out 1; /* Run once on load */
+        }
+
+        /* Handwritten Speech Bubble */
+        .speech-bubble {
+            position: relative;
+            background: #ffffff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 25px; /* Consistent with card radius */
+            padding: 15px 20px;
+            margin: 25px 10px;
+            font-family: 'Yomogi', cursive;
+            box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
+            transform: rotate(-1.5deg); /* More pronounced tilt */
+            line-height: 1.6;
+            font-size: 15px;
+            color: #333333;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px; /* Adjusted for larger border */
+            left: 25px; /* Adjusted for better positioning */
+            border-width: 14px 9px 0; /* Larger pointer */
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            display: block;
+            width: 0;
+            transform: rotate(-1.5deg); /* Rotate with bubble */
+        }
+
+        /* Speech bubble variations */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 25px;
+            transform: rotate(16.5deg); /* Adjusted for bubble tilt */
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -15px;
+            border-width: 0 9px 14px;
+            transform: rotate(-6.5deg); /* Adjusted for bubble tilt */
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3; /* Lighter yellow */
+            border-color: var(--ui-color-2);
+            transform: rotate(1.5deg);
+        }
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent;
+            transform: rotate(1.5deg); /* Adjust for bubble tilt */
+        }
+        .speech-bubble.variant-1.top::after {
+            transform: rotate(-3.5deg);
+        }
+        .speech-bubble.variant-1.right::after {
+            transform: rotate(13.5deg);
+        }
+
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9; /* Lighter red */
+            border-color: var(--ui-color-5);
+            transform: rotate(-2.5deg);
+        }
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent;
+            transform: rotate(-2.5deg); /* Adjust for bubble tilt */
+        }
+        .speech-bubble.variant-2.top::after {
+            transform: rotate(-7.5deg);
+        }
+        .speech-bubble.variant-2.right::after {
+            transform: rotate(12.5deg);
+        }
+
+        .speech-bubble .handwritten {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333333;
+        }
+        .speech-bubble .handwritten i {
+            margin-right: 5px;
+            font-size: 1.1em;
+            vertical-align: middle;
+        }
+
+        /* Code Preview */
+        pre {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 15px;
+            overflow-x: auto;
+            border: 1px dashed #ddd; /* Subtle border */
+            font-family: 'Fira Code', 'Cousine', monospace; /* Preferred coding font */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1600px) {
+            .section-card {
+                min-width: 300px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-card {
+                min-width: 380px; /* Two columns */
+            }
+            .section-layout {
+                gap: 25px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .section-card {
+                min-width: 450px; /* Single column, wider card */
+            }
+            .infographic-header h1 {
+                font-size: 32px;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .infographic-header h1 i {
+                font-size: 5em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .infographic-container {
+                padding: 15px;
+            }
+            .section-layout {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .section-card {
+                width: 100%;
+                min-width: auto;
+                padding: 20px;
+            }
+            .infographic-header h1 {
+                font-size: 28px;
+            }
+            .infographic-header h1 i {
+                font-size: 4em;
+            }
+            .mega-icon-container h2 {
+                font-size: 22px;
+            }
+            .keyword-list li {
+                font-size: 15px;
+            }
+            .speech-bubble {
+                font-size: 14px;
+                padding: 12px 18px;
+                margin: 20px 5px;
+            }
+            pre {
+                font-size: 13px;
+            }
+        }
+
+        /* Simple JS to activate scroll-based animation for cards */
+        /* This part is usually done with JavaScript. For a pure HTML output,
+           we'll include a small script snippet but note its functionality. */
+        .js-enabled .fade-in-scale {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .js-enabled .fade-in-scale.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="infographic-container">
+    <header class="infographic-header">
+        <h1>
+            <i class="fa-solid fa-lightbulb" style="color: var(--ui-color-1);" aria-hidden="true"></i>
+            <span style="color: #333333;">グラフィックレコーディングの極意</span>
+        </h1>
+        <p style="color: #777777;">最終更新: 2023年10月27日</p>
+    </header>
+
+    <main class="section-layout">
+        <!-- カード1: グラフィックレコーディングとは -->
+        <div class="section-card fade-in-scale">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-pen-nib fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2.5s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-circle-question" aria-hidden="true"></i> グラフィックレコーディングとは？</h2>
+            </div>
+            <div class="card-content">
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                        <span>会議や講演の内容を<span class="keyword-tag highlight">リアルタイム</span>で<span class="keyword-tag">視覚化</span>する手法。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-brain" aria-hidden="true"></i>
+                        <span>テキストだけでなく、<span class="keyword-tag">イラスト</span>や<span class="keyword-tag">アイコン</span>で表現。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-users" aria-hidden="true"></i>
+                        <span>参加者の<span class="keyword-tag">理解促進</span>と<span class="keyword-tag">活性化</span>が目的。</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="speech-bubble">
+                <span class="handwritten">
+                    <i class="fa-solid fa-star fa-lg" style="color: var(--ui-color-2);"></i>
+                    情報は<span class="keyword-tag">視覚化</span>で<br>
+                    もっと伝わる！
+                </span>
+            </div>
+        </div>
+
+        <!-- カード2: 必要なツールとスキル -->
+        <div class="section-card fade-in-scale">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-laptop-code fa-5x" style="color: var(--ui-color-2); animation: fa-flip 2s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-gear" aria-hidden="true"></i> 準備するもの・スキル</h2>
+            </div>
+            <div class="card-content">
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-brush" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">ツール</span>: ホワイトボード、ペン、タブレット（iPad + Procreateなど）。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">描画スキル</span>: 簡単なイラスト、アイコン描画能力。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">構成力</span>: 情報の要約、構造化、レイアウト調整。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">傾聴力</span>: 話の内容を正確に聞き取り、要点を捉える力。</span>
+                    </li>
+                </ul>
+                <pre>
+// 例: よく使う記号
+const symbols = {
+  idea: '💡',
+  question: '❓',
+  action: '✅',
+  problem: '⚠️'
+};</pre>
+            </div>
+            <div class="speech-bubble variant-1 right">
+                <span class="handwritten">
+                    <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-5);"></i>
+                    <span class="keyword-tag">練習あるのみ！</span><br>
+                    デジタルツールも便利だよ！
+                </span>
+            </div>
+        </div>
+
+        <!-- カード3: 活用事例と効果 -->
+        <div class="section-card fade-in-scale">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-handshake fa-5x" style="color: var(--ui-color-5); animation: fa-shake 2s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-chart-simple" aria-hidden="true"></i> 活用事例と効果</h2>
+            </div>
+            <div class="card-content">
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-comments" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">会議</span>: 議論の可視化、合意形成の促進。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-book" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">学習</span>: 複雑な概念の整理、記憶への定着。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-presentation-screen" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">プレゼン</span>: 聴衆の集中力維持、メッセージ強化。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-code-branch" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">効果</span>: <span class="keyword-tag">情報の共有</span>と<span class="keyword-tag">共感</span>を生み出す。</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="speech-bubble variant-2 top">
+                <span class="handwritten">
+                    <i class="fa-solid fa-users fa-lg" style="color: var(--ui-color-1);"></i>
+                    どんな場面でも<br>
+                    <span class="keyword-tag">コミュニケーション</span>を<br>
+                    <span class="keyword-tag">活性化</span>させるよ！
+                </span>
+            </div>
+        </div>
+
+        <!-- カード4: 今後の展望 -->
+        <div class="section-card fade-in-scale">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-chart-line fa-5x" style="color: var(--ui-color-4); animation: fa-beat 2s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-timeline" aria-hidden="true"></i> 今後の展望</h2>
+            </div>
+            <div class="card-content">
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-robot" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">AIとの融合</span>: 自動要約・図解支援機能の進化。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-earth-americas" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">リモートコラボレーション</span>: オンラインツールのさらなる発展。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">インタラクティブ性</span>: クリック可能なグラフィックレコーディング。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">データ可視化</span>との連携で、より深い洞察を。</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="speech-bubble variant-1">
+                <span class="handwritten">
+                    <i class="fa-solid fa-rocket fa-lg" style="color: var(--ui-color-4);"></i>
+                    <span class="keyword-tag">進化</span>し続ける<br>
+                    グラフィックレコーディングに<br>
+                    注目！
+                </span>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // JavaScript for scroll-based animations and initial card activation
+    // This script is for demonstration purposes as pure HTML cannot natively handle scroll-triggered animations.
+    // In a real scenario, this would be part of a JS file.
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.classList.add('js-enabled'); // Add a class to enable JS-dependent CSS
+
+        const observerOptions = {
+            root: null, // viewport
+            rootMargin: '0px',
+            threshold: 0.1 // 10% of element visible
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target); // Stop observing once animated
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section-card').forEach(card => {
+            observer.observe(card);
+        });
+    });
+</script>
+
+</body>
+</html>
+```
