@@ -1,0 +1,490 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グラフィックレコーディング風インフォグラフィック</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        :root {
+            --ui-color-1: #1B6C8C; /* UI/UX-1 */
+            --ui-color-2: #BF8136; /* UI/UX-2 */
+            --ui-color-3: #F2E8E4; /* UI/UX-3 */
+            --ui-color-4: #260101; /* UI/UX-4 */
+            --ui-color-5: #BF5656; /* UI/UX-5 */
+        }
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            background-color: #FFF8F5; /* 全体を白背景 */
+            color: #333333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 全体を中央に配置 */
+            overflow-x: hidden; /* 横スクロールバーを防ぐ */
+        }
+
+        /* Header */
+        .header-container {
+            width: 100%;
+            max-width: 2000px; /* section-layoutの最大幅と合わせる */
+            text-align: center;
+            padding: 40px 20px 20px;
+            box-sizing: border-box;
+        }
+
+        .main-title {
+            font-size: 36px;
+            color: #333333;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-family: 'Kaisei Decol', sans-serif; /* タイトルは装飾的なフォント */
+        }
+
+        .main-title .fa-icon {
+            font-size: 7em; /* fa-7x以上 */
+            color: var(--ui-color-1);
+        }
+
+        .date-info {
+            font-size: 14px;
+            color: #777777;
+            margin-top: 5px;
+        }
+
+        /* Layout */
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px; /* カード間のスペース */
+            justify-content: center;
+            padding: 30px 20px;
+            max-width: 2000px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* カードスタイル */
+        .section-card {
+            flex: 1;
+            min-width: 280px; /* 4カラム対応のための調整 */
+            max-width: 450px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: left;
+            transition: all 0.3s ease; /* ホバーアニメーション */
+        }
+        
+        /* カードホバーアニメーション */
+        .section-card:hover {
+            background-color: #fcf6f3;
+            transform: translateY(-8px);
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15);
+        }
+
+        /* カード内アイコンコンテナ */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0;
+            width: 100%;
+        }
+
+        .mega-icon-container .fa-solid {
+            animation-duration: 2s; /* アニメーション速度 */
+            animation-iteration-count: infinite; /* 繰り返し */
+            animation-timing-function: ease-in-out;
+        }
+
+        .section-card h2 { /* カードタイトル */
+            font-size: 24px;
+            color: #555555;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-family: 'Kaisei Decol', sans-serif;
+        }
+
+        /* カードコンテンツ */
+        .card-content {
+            padding: 0 10px 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* キーワードリスト */
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 16px;
+            color: #333333;
+            line-height: 1.5;
+        }
+
+        .keyword-list li i {
+            margin-right: 10px;
+            color: var(--ui-color-2);
+            min-width: 1.2em;
+            font-size: 1.2em; /* fa-lg */
+            padding-top: 2px;
+        }
+
+        /* キーワードタグ */
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 3px 8px;
+            border-radius: 5px;
+            margin-right: 5px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 16px;
+            white-space: nowrap; /* テキストが途中で改行されないように */
+        }
+        
+        /* キーワード強調アニメーション */
+        @keyframes highlight-text {
+            0% { background-color: transparent; }
+            50% { background-color: var(--ui-color-2); color: white; }
+            100% { background-color: transparent; color: var(--ui-color-4); }
+        }
+        
+        .keyword-tag.highlight {
+            animation: highlight-text 1.5s ease-in-out forwards;
+            animation-delay: 0.8s; /* アニメーション開始を少し遅らせる */
+        }
+
+        /* 手書き風吹き出し */
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 20px;
+            padding: 10px 18px;
+            margin: 20px 5px 10px;
+            font-family: 'Yomogi', cursive;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+            width: calc(100% - 20px);
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 20px;
+            border-width: 15px 10px 0;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* 吹き出しバリエーション */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 20px;
+            transform: rotate(15deg);
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -15px;
+            border-width: 0 10px 15px;
+            transform: rotate(-5deg);
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3;
+            border-color: var(--ui-color-2);
+            transform: rotate(1deg);
+        }
+
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent;
+        }
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9;
+            border-color: var(--ui-color-5);
+            transform: rotate(-2deg);
+        }
+
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent;
+        }
+
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .handwritten .fa-lg {
+            margin-right: 5px;
+            color: inherit; /* 吹き出しの線の色を継承 */
+        }
+
+        /* コードプレビュー */
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 15px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', Courier, monospace; /* 等幅フォント */
+            line-height: 1.4;
+            color: #333;
+        }
+
+        /* カード出現時のフェードインスケールアニメーション */
+        @keyframes fade-in-scale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .fade-in-scale {
+            animation: fade-in-scale 0.8s ease-out forwards;
+            opacity: 0; /* アニメーション開始時は非表示 */
+        }
+        /* スクロールに連動した効果はJavaScriptが必要ですが、
+           純粋なHTML/CSSではanimation-delayで起動順序を制御します。 */
+
+
+        /* レスポンシブ対応 */
+        @media (max-width: 1600px) {
+            .section-card {
+                min-width: 320px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-card {
+                min-width: 400px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .section-card {
+                min-width: 450px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .section-card {
+                width: 90%;
+                min-width: auto;
+                max-width: 500px;
+            }
+
+            .main-title .fa-icon {
+                font-size: 5em; /* モバイルでのアイコンサイズ調整 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <h1 class="main-title">
+            <i class="fa-solid fa-chart-pie fa-icon" aria-hidden="true"></i>
+            グラフィックレコーディング風インフォグラフィックの全て
+        </h1>
+        <p class="date-info">2023年10月27日 更新</p>
+    </div>
+
+    <div class="section-layout">
+        <!-- カード1: 視覚化の力 -->
+        <div class="section-card fade-in-scale" style="animation-delay: 0.1s;">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-eye fa-5x" style="color: var(--ui-color-1); animation-name: fa-bounce;" aria-hidden="true"></i>
+                <h2>🚀 視覚化の力</h2>
+            </div>
+            
+            <div class="card-content">
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-circle-question fa-lg" aria-hidden="true"></i>
+                        <span>複雑な情報を<span class="keyword-tag highlight">直感的</span>に伝達！</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-lightbulb fa-lg" aria-hidden="true"></i>
+                        <span>記事や発表を<span class="keyword-tag highlight">記憶に残る</span>体験に。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-code-branch fa-lg" aria-hidden="true"></i>
+                        <span>グラフィックレコーディングと<span class="keyword-tag">インフォグラフィック</span>の融合。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-clipboard fa-lg" aria-hidden="true"></i>
+                        <span>このプロンプトの<span class="keyword-tag">目的</span>を解説。</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="speech-bubble top variant-1">
+                <span class="handwritten">
+                    <i class="fa-solid fa-marker fa-lg" style="color: var(--ui-color-2);"></i>
+                    手書き風の吹き出しで、<br>親しみやすさと理解を深めます。
+                </span>
+            </div>
+        </div>
+
+        <!-- カード2: デザインの骨格 -->
+        <div class="section-card fade-in-scale" style="animation-delay: 0.3s;">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-palette fa-5x" style="color: var(--ui-color-2); animation-name: fa-beat-fade;" aria-hidden="true"></i>
+                <h2>✨ デザインの骨格</h2>
+            </div>
+            
+            <div class="card-content">
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-fill-drip fa-lg" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">カラースキーム</span>の統一性
+                        <br><span class="date-info">(UI/UX-1~5を使用)</span></span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-pen-nib fa-lg" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">タイポグラフィ</span>の工夫
+                        <br>タイトル: 36px, カード: 24px<br>本文: 16px, 行間1.5</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-table-columns fa-lg" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">4カラム</span>レスポンシブレイアウト</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-maximize fa-lg" aria-hidden="true"></i>
+                        <span>全体最大幅<span class="keyword-tag">2000px</span>でセンタリング。</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="speech-bubble">
+                <span class="handwritten">
+                    <i class="fa-solid fa-pencil-ruler fa-lg" style="color: var(--ui-color-1);"></i>
+                    各要素が調和し、<br>全体として読みやすいデザインに！
+                </span>
+            </div>
+        </div>
+
+        <!-- カード3: 表現のディテール -->
+        <div class="section-card fade-in-scale" style="animation-delay: 0.5s;">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-icons fa-5x" style="color: var(--ui-color-5); animation-name: fa-flip;" aria-hidden="true"></i>
+                <h2>🎨 表現のディテール</h2>
+            </div>
+            
+            <div class="card-content">
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-compass-drafting fa-lg" aria-hidden="true"></i>
+                        <span>特大<span class="keyword-tag">Font Awesome</span>アイコン<br>(fa-5x〜7xでテーマを象徴)</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-list-check fa-lg" aria-hidden="true"></i>
+                        <span>小さな<span class="keyword-tag">インラインアイコン</span>でリストを整理<br>例: <i class="fa-solid fa-heart"></i>愛, <i class="fa-solid fa-lightbulb"></i>思考</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-comment-dots fa-lg" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">手書き風吹き出し</span>の活用<br>3種類のバリエーションと配置。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-code fa-lg" aria-hidden="true"></i>
+                        <span>コードサンプルは<span class="keyword-tag">プレビュー形式</span>で:</span>
+                    </li>
+                </ul>
+                
+                <pre>
+&lt;div class="speech-bubble variant-2"&gt;
+  &lt;span class="handwritten"&gt;
+    &lt;i class="fa-solid fa-lightbulb fa-lg"&gt;&lt;/i&gt;
+    補足情報...
+  &lt;/span&gt;
+&lt;/div&gt;</pre>
+            </div>
+            
+            <div class="speech-bubble right variant-2">
+                <span class="handwritten">
+                    <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-5);"></i>
+                    視覚的要素で、<br>情報の重みや種類を伝えましょう！
+                </span>
+            </div>
+        </div>
+
+        <!-- カード4: 実装と拡張性 -->
+        <div class="section-card fade-in-scale" style="animation-delay: 0.7s;">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-screwdriver-wrench fa-5x" style="color: var(--ui-color-4); animation-name: fa-beat;" aria-hidden="true"></i>
+                <h2>⚙️ 実装と拡張性</h2>
+            </div>
+            
+            <div class="card-content">
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-file-code fa-lg" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">HTML/CSS</span>構造のポイント<br>(section-card, section-layoutなど)</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">アニメーション</span>効果の追加<br>(アイコン、カード、キーワード)</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-mobile fa-lg" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">レスポンシブ</span>対応<br>様々なデバイスで最適表示。</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-clipboard-check fa-lg" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">ガイドライン</span>の遵守と改良。</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="speech-bubble variant-1">
+                <span class="handwritten">
+                    <i class="fa-solid fa-rocket fa-lg" style="color: var(--ui-color-2);"></i>
+                    このプロンプトはV5！<br>継続的な改善でより強力に！
+                </span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+```
