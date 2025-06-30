@@ -1,0 +1,591 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIテクノロジー最新情報 - グラフィックレコーディング</title>
+    <style>
+        /* フォントとFont Awesomeの読み込み */
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        /* カラースキーム */
+        :root {
+            --ui-color-1: #1B6C8C; /* 深い青緑 */
+            --ui-color-2: #BF8136; /* オレンジブラウン */
+            --ui-color-3: #F2E8E4; /* 明るいベージュ */
+            --ui-color-4: #260101; /* 非常に濃い茶色 */
+            --ui-color-5: #BF5656; /* くすんだ赤 */
+            --bg-color: #FFF8F5; /* 白背景 */
+        }
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            background-color: var(--bg-color);
+            color: #333333;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 全体レイアウト */
+        .main-container {
+            max-width: 2000px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            border-bottom: 3px dashed var(--ui-color-1);
+        }
+
+        .header h1 {
+            font-family: 'Kaisei Decol', serif;
+            font-size: 36px;
+            color: #333333;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .header h1 i {
+            color: var(--ui-color-1);
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #777777;
+            margin-top: 10px;
+        }
+
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        /* カードスタイル */
+        .section-card {
+            flex: 1;
+            min-width: 280px; /* カードの最小幅を広げ、4カラムに対応 */
+            max-width: 450px; /* カードの最大幅を広げ、4カラムに対応 */
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15);
+            background-color: var(--ui-color-3); /* ホバー時の背景色変化 */
+        }
+
+        /* カード内アイコンコンテナ */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .mega-icon-container i {
+            color: var(--ui-color-1);
+        }
+
+        .mega-icon-container h2 {
+            font-family: 'Kaisei Decol', serif;
+            font-size: 24px;
+            color: #555555;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .mega-icon-container h2 i {
+            font-size: 1.5em; /* カードタイトルアイコンのサイズ調整 */
+            color: var(--ui-color-2);
+        }
+
+        /* カードコンテンツ */
+        .card-content {
+            padding: 0 10px 15px;
+        }
+
+        /* キーワードリスト */
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        .keyword-list li i {
+            margin-right: 8px;
+            color: var(--ui-color-2);
+            min-width: 16px;
+        }
+
+        /* キーワードタグ */
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 3px 8px;
+            border-radius: 5px;
+            margin-right: 5px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 14px; /* タグのフォントサイズ調整 */
+            transition: background-color 0.3s ease;
+        }
+
+        .keyword-tag:hover {
+            background-color: var(--ui-color-2);
+            color: white;
+        }
+
+        /* 手書き風吹き出し */
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin: 15px 5px;
+            font-family: 'Yomogi', cursive;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -13px;
+            left: 20px;
+            border-width: 12px 8px 0;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            display: block;
+            width: 0;
+            transform: rotate(0deg); /* デフォルトの矢印角度 */
+        }
+
+        /* 吹き出しバリエーション */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 20px;
+            transform: rotate(15deg);
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -13px;
+            border-width: 0 8px 12px;
+            transform: rotate(-5deg);
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3;
+            border-color: var(--ui-color-2);
+            transform: rotate(1deg);
+        }
+
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent;
+        }
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9;
+            border-color: var(--ui-color-5);
+            transform: rotate(-2deg);
+        }
+
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent;
+        }
+
+        /* 手書き文字 */
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .handwritten i {
+            margin-right: 5px;
+        }
+
+        /* コードプレビュー */
+        pre {
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 5px;
+            font-family: 'Fira Code', 'Roboto Mono', monospace; /* 等幅フォント */
+            font-size: 12px;
+            margin-top: 10px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+        }
+
+        /* アニメーション */
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .fade-in-scale {
+            animation: fadeInScale 1s ease-out forwards;
+            opacity: 0; /* 初期状態を非表示にする */
+            /* スクロール連動の場合はJavaScriptで制御 */
+        }
+
+        /* スクロール連動アニメーションのプレースホルダー */
+        /* JSでIntersectionObserver APIを使って、ビューポートに入ったらfade-in-scaleクラスを付与する */
+
+        /* レスポンシブ対応 */
+        @media (max-width: 1600px) {
+            .section-card {
+                min-width: 300px; /* 3カラム対応 */
+                max-width: 48%; /* 2カラム対応 */
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-card {
+                min-width: 350px; /* 2カラム対応 */
+                max-width: 48%;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .section-card {
+                min-width: 400px;
+                max-width: 95%; /* 1カラム対応 */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+            .section-card {
+                width: 95%;
+                min-width: auto;
+            }
+            .header h1 {
+                font-size: 28px;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .header h1 i {
+                font-size: 5x;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header class="header">
+            <h1><i class="fa-solid fa-brain fa-7x" style="animation: fa-beat-fade 3s infinite;"></i>AI & Tech 最新動向</h1>
+            <p>2025年6月30日更新情報</p>
+        </header>
+
+        <div class="section-layout">
+            <!-- カード1: XServer VPS & Claude Code -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-server fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s infinite;"></i>
+                    <h2><i class="fa-solid fa-terminal"></i>XServer VPS: AI開発の新境地</h2>
+                </div>
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-calendar-days fa-lg"></i>
+                            <span>提供開始: <span class="keyword-tag">2025年6月30日</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-cloud fa-lg"></i>
+                            <span>サービス: <span class="keyword-tag">XServer VPS</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-robot fa-lg"></i>
+                            <span>新機能: <span class="keyword-tag">Claude Code</span> アプリイメージ</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-shield-halved fa-lg"></i>
+                            <span>特徴: <span class="keyword-tag">セキュア</span>で柔軟な<span class="keyword-tag">AI開発環境</span>を<span class="keyword-tag">短期間</span>で構築</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-lock fa-lg"></i>
+                            <span>解決課題: 情報<span class="keyword-tag">セキュリティポリシー</span>による導入困難</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-chart-line fa-lg"></i>
+                            <span>スペック強化: ディスク最大<span class="keyword-tag">2,400GB</span>、メモリ最大<span class="keyword-tag">96GB</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-dollar-sign fa-lg"></i>
+                            <span>料金: 初期費用無料、月額<span class="keyword-tag">830円</span>から</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="speech-bubble">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-2);"></i>
+                        「Claude Code」は<span class="keyword-tag">自然言語</span>で<span class="keyword-tag">コード生成</span>や<span class="keyword-tag">デバッグ支援</span>を行うスグレモノ！<br>
+                        AI開発がもっと身近になります！
+                    </span>
+                </div>
+            </div>
+
+            <!-- カード2: Datadog LLM Observability -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-magnifying-glass-chart fa-5x" style="color: var(--ui-color-2); animation: fa-spin 5s linear infinite;"></i>
+                    <h2><i class="fa-solid fa-chart-pie"></i>Datadog: LLM監視の進化</h2>
+                </div>
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-robot fa-lg"></i>
+                            <span>対象: <span class="keyword-tag">AIエージェント</span>の<span class="keyword-tag">監視</span>と<span class="keyword-tag">ガバナンス</span>強化</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-microchip fa-lg"></i>
+                            <span>新機能1: <span class="keyword-tag">AI Agent Monitoring</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-flask fa-lg"></i>
+                            <span>新機能2: <span class="keyword-tag">LLM Experiments</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-desktop fa-lg"></i>
+                            <span>新機能3: <span class="keyword-tag">AI Agents Console</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-eye fa-lg"></i>
+                            <span>目的: AIシステムの<span class="keyword-tag">可視化</span>とビジネス価値の把握</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-user-lock fa-lg"></i>
+                            <span>支援: <span class="keyword-tag">セキュリティ</span>と<span class="keyword-tag">コンプライアンス</span>のリスク管理</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="speech-bubble variant-1 right">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-eye fa-lg" style="color: var(--ui-color-1);"></i>
+                        複雑なAIモデルの動作を<br>
+                        <span class="keyword-tag">リアルタイム</span>で把握し、<br>
+                        効果的に管理できます！
+                    </span>
+                </div>
+            </div>
+
+            <!-- カード3: AIゲーム開発の衝撃 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-gamepad fa-5x" style="color: var(--ui-color-5); animation: fa-beat 1.5s infinite;"></i>
+                    <h2><i class="fa-solid fa-dice"></i>AIが創るゲーム開発の未来</h2>
+                </div>
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-pencil fa-lg"></i>
+                            <span>著者: <span class="keyword-tag">新清士</span>氏 (ASCII.jp)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-microchip fa-lg"></i>
+                            <span>主役: <span class="keyword-tag">Claude Code</span>によるゲーム開発</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-lightbulb fa-lg"></i>
+                            <span>アイデア: <span class="keyword-tag">ChatGPT</span>が<span class="keyword-tag">Ren'Py</span>を推奨</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-book-open fa-lg"></i>
+                            <span>シナリオ: <span class="keyword-tag">Claude</span> (AI) が生成</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-code fa-lg"></i>
+                            <span>コーディング: <span class="keyword-tag">Claude Code</span>が仕様からコード化</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-bug fa-lg"></i>
+                            <span>修正: <span class="keyword-tag">エラー修正</span>もAIが支援</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-flask fa-lg"></i>
+                            <span>成果: 約5分のアドベンチャーゲーム<span class="keyword-tag">モックアップ</span>を効率作成</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="speech-bubble top variant-2">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-face-surprise fa-lg" style="color: var(--ui-color-4);"></i>
+                        「AI丸投げ」で<span class="keyword-tag">ゲーム開発</span>が<br>
+                        こんなに楽しいとは！<br>
+                        <i class="fa-solid fa-feather-pointed fa-lg" style="color: var(--ui-color-4);"></i>
+                        誰もが<span class="keyword-tag">プログラミング</span>できる時代が<br>
+                        すぐそこに来ていますね！
+                    </span>
+                </div>
+            </div>
+
+            <!-- カード4: GitHub Copilot Chat オープンソース化 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-github fa-5x" style="color: var(--ui-color-4); animation: fa-flip 2s infinite;"></i>
+                    <h2><i class="fa-solid fa-handshake"></i>VS Code: AIエディタの幕開け</h2>
+                </div>
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-code-fork fa-lg"></i>
+                            <span>対象: <span class="keyword-tag">GitHub Copilot Chat</span> (VS Code拡張機能)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-scroll fa-lg"></i>
+                            <span>ライセンス: <span class="keyword-tag">MITライセンス</span>で公開</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-circle-check fa-lg"></i>
+                            <span>意義: MSがVS Codeを「<span class="keyword-tag">オープンソースのAIエディタ</span>」へ進化させる<span class="keyword-tag">第一歩</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-arrow-right-to-bracket fa-lg"></i>
+                            <span>今後: 機能が<span class="keyword-tag">VS Code本体</span>に組み込まれる予定</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-question fa-lg"></i>
+                            <span>注目点: <span class="keyword-tag">Cursor</span>や<span class="keyword-tag">Windsurf</span>などフォーク製品の差別化</span>
+                        </li>
+                    </ul>
+                    <pre>
+// GitHub Copilot Chatの一部コード例 (概念)
+function generateCode(prompt) {
+  // AIがコードを生成するロジック
+  return `console.log('${prompt}から生成されたコード');`;
+}</pre>
+                </div>
+                <div class="speech-bubble variant-1">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-star fa-lg" style="color: var(--ui-color-5);"></i>
+                        AIが<span class="keyword-tag">コード編集</span>を支援する時代！<br>
+                        開発効率が劇的に向上しそう！
+                    </span>
+                </div>
+            </div>
+
+            <!-- カード5: スマートフォンSoC市場動向 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-mobile-screen-button fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2.5s infinite;"></i>
+                    <h2><i class="fa-solid fa-microchip"></i>2025年後半: スマホSoCの覇権争い</h2>
+                </div>
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-calendar-alt fa-lg"></i>
+                            <span>時期: <span class="keyword-tag">2025年後半</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-apple-whole fa-lg"></i>
+                            <span>Apple: <span class="keyword-tag">A19 Pro</span> (9月) - <span class="keyword-tag">TSMC 3nm N3P</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-gem fa-lg"></i>
+                            <span>Qualcomm: <span class="keyword-tag">Snapdragon 8 Elite 2</span> (9月)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-bolt fa-lg"></i>
+                            <span>MediaTek: <span class="keyword-tag">Dimensity 9500</span> (9月末)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-tree fa-lg"></i>
+                            <span>Huawei: <span class="keyword-tag">Kirin 9030</span> (年末)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-robot fa-lg"></i>
+                            <span>Xiaomi: <span class="keyword-tag">XRING O2</span> (独自開発継続)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-tablet-screen-button fa-lg"></i>
+                            <span>Apple (iPad/MacBook): <span class="keyword-tag">M5チップ</span> (秋)</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="speech-bubble variant-2 top">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-bolt fa-lg" style="color: var(--ui-color-1);"></i>
+                        スマホの<span class="keyword-tag">AI性能</span>がさらに進化！<br>
+                        各社の<span class="keyword-tag">チップ競争</span>から目が離せない！
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.section-card');
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in-scale-active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+        });
+
+        // スクロール時のアニメーションクラス追加用CSS (JSと連携)
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .fade-in-scale-active {
+                animation: fadeInScale 1s ease-out forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
+```
