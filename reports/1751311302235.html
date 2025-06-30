@@ -1,0 +1,460 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manusシステムプロンプトの可視化</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        :root {
+            --ui-color-1: #1B6C8C;
+            --ui-color-2: #BF8136;
+            --ui-color-3: #F2E8E4;
+            --ui-color-4: #260101;
+            --ui-color-5: #BF5656;
+        }
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            background-color: #FFF8F5; /* 全体を白背景 */
+            color: #333333;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #333333;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        h1 i {
+            margin-right: 15px;
+            margin-bottom: 10px; /* Adjust for smaller screens */
+        }
+
+        .header-date {
+            font-size: 14px;
+            color: #777777;
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 30px;
+        }
+
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            padding: 20px;
+            max-width: 2000px;
+            margin: 0 auto;
+        }
+
+        /* カードスタイル */
+        .section-card {
+            flex: 1;
+            min-width: 280px;
+            max-width: 450px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+            opacity: 0;
+            transform: scale(0.9);
+            animation: fade-in-scale 0.8s forwards;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15);
+        }
+
+        /* カード内アイコンコンテナ */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .mega-icon-container h2 {
+            font-size: 24px;
+            color: #555555;
+            margin-top: 10px;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+
+        .mega-icon-container h2 i {
+            margin-right: 10px;
+            color: var(--ui-color-1); /* カードタイトルアイコンの色 */
+        }
+
+
+        /* カードコンテンツ */
+        .card-content {
+            padding: 0 10px 15px;
+        }
+
+        /* キーワードリスト */
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        .keyword-list li i {
+            margin-right: 8px;
+            color: var(--ui-color-2);
+            min-width: 16px;
+        }
+
+        .list-heading {
+            font-size: 18px;
+            color: #333333;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* キーワードタグ */
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 3px 8px;
+            border-radius: 5px;
+            margin-left: 5px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 14px; /* タグ内の文字は少し小さく */
+        }
+
+        /* 手書き風吹き出し */
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin: 15px 5px;
+            font-family: 'Yomogi', cursive;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -13px;
+            left: 20px;
+            border-width: 12px 8px 0;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* 吹き出しバリエーション */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 20px;
+            transform: rotate(15deg);
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -13px;
+            border-width: 0 8px 12px;
+            transform: rotate(-5deg);
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3;
+            border-color: var(--ui-color-2);
+            transform: rotate(1deg);
+        }
+
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent;
+        }
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9;
+            border-color: var(--ui-color-5);
+            transform: rotate(-2deg);
+        }
+
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent;
+        }
+
+        /* 手書き文字 */
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        /* コードプレビュー (今回は使用しないが、念のため残す) */
+        pre {
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-top: 10px;
+            overflow-x: auto;
+            font-family: monospace;
+        }
+
+        /* アニメーション */
+        @keyframes fade-in-scale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* スクロールに連動したカードの出現効果 (JSで制御可能だが、CSSのみの簡易版としてアニメーション遅延を使用) */
+        .section-card:nth-child(1) { animation-delay: 0s; }
+        .section-card:nth-child(2) { animation-delay: 0.2s; }
+        .section-card:nth-child(3) { animation-delay: 0.4s; }
+        .section-card:nth-child(4) { animation-delay: 0.6s; }
+        /* 必要に応じてさらに追加 */
+
+        /* レスポンシブ対応 */
+        @media (max-width: 1600px) {
+            .section-card {
+                min-width: 280px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-card {
+                min-width: 320px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .section-card {
+                min-width: 380px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .section-card {
+                width: 90%; /* Adjust width for better fit on small screens */
+                min-width: auto;
+                max-width: 450px; /* Keep max-width for consistency */
+            }
+
+            h1 {
+                font-size: 30px;
+                flex-direction: column;
+            }
+
+            h1 i {
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>
+            <i class="fa-solid fa-brain-circuit fa-7x" style="color: var(--ui-color-1);" aria-hidden="true"></i>
+            Manusシステムプロンプトの可視化！
+        </h1>
+        <p class="header-date">2025年6月xx日</p>
+    </header>
+
+    <main class="section-layout">
+
+        <!-- カード1: Manusシステムプロンプトとは -->
+        <div class="section-card">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-robot fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-microchip"></i> Manusシステムプロンプトとは？</h2>
+            </div>
+            
+            <div class="card-content">
+                <p class="list-heading">AIエージェントの”脳”</p>
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                        <span>高度な<span class="keyword-tag">AIタスク実行</span>の基盤</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-brain" aria-hidden="true"></i>
+                        <span>複雑な指示を<span class="keyword-tag">理解・計画</span></span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-gear" aria-hidden="true"></i>
+                        <span>システム操作を可能にする<span class="keyword-tag">インターフェース</span></span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="speech-bubble">
+                <span class="handwritten">
+                    <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-2);"></i>
+                    AIがただのチャットじゃなく<br>
+                    “自律的に動く”<span class="keyword-tag">エージェント</span>に！
+                </span>
+            </div>
+        </div>
+
+        <!-- カード2: ブラウザ機能の衝撃 -->
+        <div class="section-card">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-browser fa-5x" style="color: var(--ui-color-2); animation: fa-flip 3s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-globe"></i> ブラウザ機能の衝撃</h2>
+            </div>
+            
+            <div class="card-content">
+                <p class="list-heading">Web情報の自由な活用</p>
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-link" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">リアルタイム</span>なWeb情報アクセス</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                        <span>Webページの<span class="keyword-tag">内容理解・解析</span></span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <span>動的な情報<span class="keyword-tag">収集と活用</span></span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>
+                        <span>Webベースの<span class="keyword-tag">操作実行</span>（クリック、入力など）</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="speech-bubble variant-1 right">
+                <span class="handwritten">
+                    <i class="fa-solid fa-compass fa-lg" style="color: var(--ui-color-1);"></i>
+                    まるで人間のようにWebを巡り<br>
+                    必要な情報を探し出す！
+                </span>
+            </div>
+        </div>
+
+        <!-- カード3: ファイルシステム操作の革新 -->
+        <div class="section-card">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-folder fa-5x" style="color: var(--ui-color-1); animation: fa-beat-fade 2.5s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-hdd"></i> ファイルシステム操作の革新</h2>
+            </div>
+            
+            <div class="card-content">
+                <p class="list-heading">ローカル環境への影響</p>
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-file-code" aria-hidden="true"></i>
+                        <span>ファイルの<span class="keyword-tag">読み書き・編集</span></span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+                        <span>ディレクトリの<span class="keyword-tag">作成・操作</span></span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-code" aria-hidden="true"></i>
+                        <span>コードの<span class="keyword-tag">生成・修正・実行</span></span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-database" aria-hidden="true"></i>
+                        <span>データの<span class="keyword-tag">永続化・管理</span></span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="speech-bubble variant-2 top">
+                <span class="handwritten">
+                    <i class="fa-solid fa-computer fa-lg" style="color: var(--ui-color-5);"></i>
+                    PC作業の多くが<span class="keyword-tag">自動化</span>される<br>
+                    未来がすぐそこに！
+                </span>
+            </div>
+        </div>
+
+        <!-- カード4: そのインパクトと可能性 -->
+        <div class="section-card">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-rocket fa-5x" style="color: var(--ui-color-5); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                <h2><i class="fa-solid fa-star"></i> そのインパクトと可能性</h2>
+            </div>
+            
+            <div class="card-content">
+                <p class="list-heading">AIの次のステージ</p>
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">業務効率</span>の劇的向上</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-flask" aria-hidden="true"></i>
+                        <span>新たな<span class="keyword-tag">AIアプリケーション</span>の創出</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-shield-alt" aria-hidden="true"></i>
+                        <span><span class="keyword-tag">セキュリティ</span>考慮の重要性増大</span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+                        <span>AIの<span class="keyword-tag">自律性・創造性</span>の飛躍</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="speech-bubble right">
+                <span class="handwritten">
+                    <i class="fa-solid fa-bolt fa-lg" style="color: var(--ui-color-2);"></i>
+                    AIが『できること』の<br>
+                    <span class="keyword-tag">概念</span>がマジで変わる！！！
+                </span>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>
+```
