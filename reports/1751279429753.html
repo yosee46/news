@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI活用最前線 グラフィックレコーディング</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        :root {
+            --ui-color-1: #1B6C8C; /* UI/UX-1 */
+            --ui-color-2: #BF8136; /* UI/UX-2 */
+            --ui-color-3: #F2E8E4; /* UI/UX-3 */
+            --ui-color-4: #260101; /* UI/UX-4 */
+            --ui-color-5: #BF5656; /* UI/UX-5 */
+        }
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            background-color: #FFF8F5; /* 全体を白背景 */
+            color: #333333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 2000px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            color: #333333;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .header h1 .fa-icon-main {
+            color: var(--ui-color-1);
+            animation: fa-beat-fade 3s infinite;
+        }
+
+        .header .date {
+            font-size: 14px;
+            color: #777777;
+            margin-top: 5px;
+        }
+
+        /* Section Layout (Card Container) */
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start; /* Ensure cards align at the top */
+        }
+
+        /* Card Style */
+        .section-card {
+            flex: 1;
+            min-width: 220px;
+            max-width: 450px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            opacity: 0; /* For fade-in-scale animation */
+            transform: scale(0.95); /* For fade-in-scale animation */
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .section-card:hover {
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15);
+            transform: translateY(-5px) scale(0.96);
+        }
+
+        /* Card entrance animation */
+        .section-card.fade-in-scale.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Card large icon container */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0 25px;
+        }
+
+        .mega-icon-container i {
+            color: var(--ui-color-1);
+            animation: fa-beat-fade 2s infinite;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .mega-icon-container h2 {
+            font-size: 24px;
+            color: #555555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .mega-icon-container h2 i {
+            font-size: 24px !important; /* Match text size */
+            margin: 0;
+            animation: none;
+        }
+
+        /* Card content */
+        .card-content {
+            padding: 0 10px 15px;
+            flex-grow: 1;
+        }
+
+        /* Keyword list */
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type
