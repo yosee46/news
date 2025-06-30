@@ -1,0 +1,670 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIトレンド速報！グラフィックレコーディング風インフォグラフィック</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+    <style>
+        /* Font Imports */
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        /* Color Scheme Variables */
+        :root {
+            --ui-color-1: #1B6C8C; /* UI/UX-1 */
+            --ui-color-2: #BF8136; /* UI/UX-2 */
+            --ui-color-3: #F2E8E4; /* UI/UX-3 */
+            --ui-color-4: #260101; /* UI/UX-4 */
+            --ui-color-5: #BF5656; /* UI/UX-5 */
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            background-color: #FFF8F5; /* White background canvas */
+            color: #333333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Kaisei Decol', sans-serif;
+            font-size: 36px;
+            color: #333333;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        h1 .fa-solid {
+            font-size: 7x; /* Special larger size for header */
+            color: var(--ui-color-1);
+        }
+
+        h2 {
+            font-family: 'Kaisei Decol', sans-serif;
+            font-size: 24px;
+            color: #555555;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        h3 {
+            font-family: 'Zen Kurenaido', sans-serif;
+            font-size: 18px;
+            color: #333333;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+
+        p, li {
+            font-size: 16px;
+            color: #333333;
+            line-height: 1.5;
+        }
+
+        .date-info {
+            font-size: 14px;
+            color: #777777;
+            text-align: center;
+            margin-top: -20px;
+            margin-bottom: 40px;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 2000px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px; /* Increased gap for better spacing */
+            margin-top: 30px;
+        }
+
+        /* Card Styles */
+        .section-card {
+            flex: 1;
+            min-width: 280px; /* Adjusted min-width for better flow in 4-column */
+            max-width: 450px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px; /* Increased padding */
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+            border: 2px solid transparent; /* subtle border for hover */
+            display: flex;
+            flex-direction: column; /* Ensure content stacks properly */
+            justify-content: space-between; /* Push speech bubble to bottom or distribute space */
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15);
+            border-color: var(--ui-color-1); /* Highlight border on hover */
+            background-color: #F8FBFD; /* Subtle background change on hover */
+        }
+
+        /* Card Internal Elements */
+        .mega-icon-container {
+            text-align: center;
+            margin-bottom: 15px; /* Adjusted margin */
+        }
+
+        .mega-icon-container .fa-solid {
+            font-size: 5x; /* Default for card icons */
+            color: var(--ui-color-1);
+        }
+
+        .card-content {
+            flex-grow: 1; /* Allow content to take available space */
+            padding: 0 5px 15px;
+        }
+
+        /* Keyword List */
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 16px;
+        }
+
+        .keyword-list li i {
+            margin-right: 10px;
+            color: var(--ui-color-2);
+            min-width: 18px; /* Ensure icon has space */
+            font-size: 1.1em; /* Slightly larger for list icons */
+            padding-top: 2px; /* Align icon better with text */
+        }
+
+        /* Keyword Tag */
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 3px 8px;
+            border-radius: 8px; /* Softer corners */
+            margin-right: 5px;
+            display: inline-block;
+            font-weight: bold;
+            white-space: nowrap; /* Prevent tag break */
+            line-height: 1;
+        }
+
+        /* Code Preview */
+        pre {
+            background: #f5f5f5;
+            padding: 10px; /* Slightly more padding */
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px; /* Slightly smaller for code */
+            margin-top: 15px;
+            overflow-x: auto;
+            border: 1px solid #eee;
+        }
+
+        /* Speech Bubble */
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 20px;
+            padding: 12px 18px; /* Larger padding */
+            margin: 20px 10px 0; /* More margin from bottom of card */
+            font-family: 'Yomogi', cursive;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            transform: rotate(-1deg); /* Subtle rotation */
+            z-index: 10; /* Ensure it's on top */
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px; /* Adjust for border width */
+            left: 20%;
+            border-width: 15px 10px 0; /* Larger pointer */
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent transparent transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* Speech Bubble Variations */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 20%;
+            transform: rotate(15deg);
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -15px; /* Adjust for border width */
+            border-width: 0 10px 15px;
+            border-color: transparent transparent var(--ui-color-1) transparent;
+            transform: rotate(-5deg);
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3;
+            border-color: var(--ui-color-2);
+            transform: rotate(1deg);
+        }
+
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent transparent transparent;
+        }
+        .speech-bubble.variant-1.top::after {
+             border-color: transparent transparent var(--ui-color-2) transparent;
+        }
+
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9;
+            border-color: var(--ui-color-5);
+            transform: rotate(-2deg);
+        }
+
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent transparent transparent;
+        }
+        .speech-bubble.variant-2.top::after {
+            border-color: transparent transparent var(--ui-color-5) transparent;
+        }
+
+        /* Handwritten Text */
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+            display: block;
+        }
+
+        .handwritten .fa-solid {
+            margin-right: 5px;
+        }
+
+        /* Animations */
+        @keyframes fade-in-scale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .fade-in-scale {
+            animation: fade-in-scale 0.8s ease-out forwards;
+            opacity: 0; /* Hidden by default */
+        }
+        /* Staggered animation using inline style to simulate JS */
+        .section-card:nth-child(1) { animation-delay: 0.1s; }
+        .section-card:nth-child(2) { animation-delay: 0.2s; }
+        .section-card:nth-child(3) { animation-delay: 0.3s; }
+        .section-card:nth-child(4) { animation-delay: 0.4s; }
+        .section-card:nth-child(5) { animation-delay: 0.5s; }
+
+
+        /* Font Awesome Animations */
+        /* Applied directly in HTML with classes like fa-beat-fade */
+
+        /* Responsive Design */
+        @media (max-width: 1600px) {
+            .section-card {
+                min-width: 280px; /* Allowing slightly smaller for 4-col in less wide screens */
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-layout {
+                gap: 20px;
+            }
+            .section-card {
+                min-width: 300px;
+                max-width: calc(50% - 20px); /* 2 columns */
+            }
+        }
+
+        @media (max-width: 900px) {
+            .section-card {
+                min-width: 350px;
+                max-width: calc(100% - 40px); /* Full width with padding */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-layout {
+                flex-direction: column;
+                align-items: center; /* Center cards in column layout */
+            }
+            
+            .section-card {
+                width: 100%;
+                min-width: auto;
+                max-width: 480px; /* Constrain max width for better readability on small screens */
+            }
+
+            h1 {
+                font-size: 30px;
+                gap: 10px;
+            }
+
+            h1 .fa-solid {
+                font-size: 5x;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <i class="fa-solid fa-brain fa-7x" style="color: var(--ui-color-1); animation: fa-beat-fade 2s infinite;" aria-hidden="true"></i>
+            AIトレンド速報！2025年最新動向
+            <i class="fa-solid fa-robot fa-7x" style="color: var(--ui-color-2); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+        </h1>
+        <p class="date-info">2024年6月25日更新</p>
+
+        <div class="section-layout">
+
+            <!-- Card 1: 2025 AIトレンド通信 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-chart-line fa-5x" style="color: var(--ui-color-1); animation: fa-beat-fade 2s infinite alternate;" aria-hidden="true"></i>
+                    <h2>AIトレンド通信 6月号</h2>
+                </div>
+                
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-globe" style="color: var(--ui-color-1);"></i> 概要：最新AI業界動向</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+                            <span>株式会社SHIFT AIが「<span class="keyword-tag">2025 AIトレンド通信 6月号</span>」を発表。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-comments" aria-hidden="true"></i>
+                            <span>主要<span class="keyword-tag">AIツール別</span>に最新情報を網羅的に解説。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-building" aria-hidden="true"></i>
+                            <span>日本企業の<span class="keyword-tag">生成AI導入率</span>は56%だが、価値創出は<span class="keyword-tag">13%</span>に留まる。</span>
+                        </li>
+                    </ul>
+
+                    <h3><i class="fa-solid fa-lightbulb" style="color: var(--ui-color-2);"></i> 主要AIツール動向</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">OpenAI</span>: <span class="keyword-tag">O3-PRO</span>登場、<span class="keyword-tag">GPT-5</span> 2025年夏リリース予定。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-robot" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">Google</span>: <span class="keyword-tag">Gemini 2.5</span>拡張、<span class="keyword-tag">Search Live</span>（音声入力）導入。</span>
+                        </li>
+                        <li>
+                            <i class="fa-brands fa-apple" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">Apple</span>: <span class="keyword-tag">Live Translation</span>、<span class="keyword-tag">Visual Intelligence</span>強化。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-question" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">Perplexity AI</span>: <span class="keyword-tag">LABS</span>機能。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-code-branch" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">Anthropic</span>: <span class="keyword-tag">PLAN MODE</span>（コード変更計画確認）。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-video" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">Midjourney</span>/<span class="keyword-tag">Nijijourney</span>: 動画生成モデル。</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble variant-1 top">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-bullhorn fa-lg" style="color: var(--ui-color-2);"></i>
+                        AIは日々進化！<br>
+                        「導入」から「<span class="keyword-tag">価値創出</span>」へ！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 2: XSERVER VPS & Claude Code -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-server fa-5x" style="color: var(--ui-color-2); animation: fa-bounce 2.5s infinite;" aria-hidden="true"></i>
+                    <h2>XSERVER VPS & Claude Code</h2>
+                </div>
+                
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-cloud" style="color: var(--ui-color-1);"></i> 概要：セキュアなAI開発環境</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-code" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">XSERVER VPS</span>が<span class="keyword-tag">Claude Code</span>アプリイメージ提供開始。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                            <span>企業向け<span class="keyword-tag">AIセットアップ</span>作業を大幅簡略化。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-network-wired" aria-hidden="true"></i>
+                            <span>社内ネットワークに<span class="keyword-tag">干渉しない</span>セキュア環境を短期間で構築。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-shield-alt" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">情報セキュリティポリシー</span>対応。</span>
+                        </li>
+                    </ul>
+
+                    <h3><i class="fa-solid fa-chart-pie" style="color: var(--ui-color-2);"></i> 示唆：導入障壁の低下</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-handshake-alt-slash" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">セキュリティ懸念</span>によるAI導入の課題を解決。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-cogs" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">開発効率</span>向上に直結するAI技術の普及加速。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-building-flag" aria-hidden="true"></i>
+                            <span>中小企業やスタートアップの<span class="keyword-tag">AI活用</span>を強力に支援。</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-check-circle fa-lg" style="color: var(--ui-color-1);"></i>
+                        <span class="keyword-tag">安全</span>にAIを活用！<br>
+                        セキュアな環境が<br>
+                        開発を加速します！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 3: DataDog LLM Observability -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-eye fa-5x" style="color: var(--ui-color-5); animation: fa-flip 2.8s infinite alternate;" aria-hidden="true"></i>
+                    <h2>DataDog LLM Observability</h2>
+                </div>
+                
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-binoculars" style="color: var(--ui-color-1);"></i> 概要：AIエージェントの可視化</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">DataDog</span>が<span class="keyword-tag">LLM Observability</span>新機能を拡張。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-search-plus" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">AIエージェント</span>監視、開発加速、パフォーマンス向上。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-chart-area" aria-hidden="true"></i>
+                            <span>AIシステムの内部動作と<span class="keyword-tag">ビジネス貢献度</span>を可視化。</span>
+                        </li>
+                    </ul>
+
+                    <h3><i class="fa-solid fa-puzzle-piece" style="color: var(--ui-color-2);"></i> 主要新機能</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-robot" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">AI Agent Monitoring</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-flask" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">LLM Experiments</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-sliders-h" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">AI Agents Console</span></span>
+                        </li>
+                    </ul>
+                    <h3><i class="fa-solid fa-handshake" style="color: var(--ui-color-5);"></i> 示唆：ビジネス価値とリスク管理</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-arrow-alt-circle-up" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">AI導入</span>の加速と運用課題の顕在化に対応。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-dollar-sign" aria-hidden="true"></i>
+                            <span>開発サイクル短縮、コスト削減、<span class="keyword-tag">リスク低減</span>。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">AIガバナンス</span>構築の基盤強化。</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble variant-2 right">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-5);"></i>
+                        AIを「<span class="keyword-tag">見える化</span>」！<br>
+                        不透明性を解消し、<br>
+                        ROIを最大化！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 4: AI丸投げのゲーム開発 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-gamepad fa-5x" style="color: var(--ui-color-4); animation: fa-bounce 2.2s infinite;" aria-hidden="true"></i>
+                    <h2>AI丸投げ！ゲーム開発</h2>
+                </div>
+                
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-pen-nib" style="color: var(--ui-color-1);"></i> 概要：非専門家のAI活用</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+                            <span>筆者が<span class="keyword-tag">Claude Code</span>と<span class="keyword-tag">ChatGPT</span>でノベルゲームを開発。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-code-merge" aria-hidden="true"></i>
+                            <span>シナリオ、UI、コード生成、バグ修正をAIに「<span class="keyword-tag">丸投げ</span>」。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-hourglass-start" aria-hidden="true"></i>
+                            <span>わずか<span class="keyword-tag">20分</span>で本格モックアップ完成。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-star" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">セーブ・ロード</span>機能や<span class="keyword-tag">パラメーター変動</span>も実装。</span>
+                        </li>
+                    </ul>
+
+                    <h3><i class="fa-solid fa-rocket" style="color: var(--ui-color-2);"></i> 示唆：「誰もがプログラムを作る時代」へ</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-hat-wizard" aria-hidden="true"></i>
+                            <span>専門知識不要で<span class="keyword-tag">高品質ソフト</span>開発が可能に。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-tachometer-alt" aria-hidden="true"></i>
+                            <span>開発プロセスが劇的に変化、<span class="keyword-tag">アイデア具現化</span>が加速。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-palette" aria-hidden="true"></i>
+                            <span>クリエイターは<span class="keyword-tag">本質的な創造</span>に集中。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-seedling" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">イノベーション</span>が加速し、多様なアイデアが市場へ。</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble variant-1">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-magic fa-lg" style="color: var(--ui-color-2);"></i>
+                        AIがあれば<br>
+                        誰でも<span class="keyword-tag">開発者</span>に！<br>
+                        未来のクリエイティブ！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 5: VS Code AIエディタ化 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-code-fork fa-5x" style="color: var(--ui-color-1); animation: fa-beat 2.5s infinite;" aria-hidden="true"></i>
+                    <h2>VS Code AIエディタ化</h2>
+                </div>
+                
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-file-code" style="color: var(--ui-color-1);"></i> 概要：オープンソースAIエディタへ</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-brands fa-microsoft" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">Microsoft</span>が<span class="keyword-tag">Visual Studio Code</span>のAIエディタ化を推進。</span>
+                        </li>
+                        <li>
+                            <i class="fa-brands fa-github" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">GitHub Copilot Chat</span>のソースコードを<span class="keyword-tag">MITライセンス</span>で公開。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">VS Code本体</span>へのAI機能統合に向けた重要な一歩。</span>
+                        </li>
+                    </ul>
+
+                    <h3><i class="fa-solid fa-search" style="color: var(--ui-color-2);"></i> ニュースの背景</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+                            <span>VS Codeのあらゆる機能にAIを組み込む方針。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-code-branch" aria-hidden="true"></i>
+                            <span>本体がオープンソースのため、機能統合には<span class="keyword-tag">オープンソース化</span>が必須。</span>
+                        </li>
+                    </ul>
+
+                    <h3><i class="fa-solid fa-arrow-circle-right" style="color: var(--ui-color-5);"></i> 示唆：AIエディタ市場の激化</h3>
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-shield-alt" aria-hidden="true"></i>
+                            <span>AI機能で先行する<span class="keyword-tag">フォーク製品</span>（Cursor, Windsurfなど）に影響。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-dice" aria-hidden="true"></i>
+                            <span>本家VS Codeとの<span class="keyword-tag">差別化</span>が今後の課題に。</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-star" aria-hidden="true"></i>
+                            <span>開発者にとって、より<span class="keyword-tag">高度な開発環境</span>が容易に利用可能に。</span>
+                        </li>
+                    </ul>
+                    <pre>
+// GitHub Copilot Chat Example
+function generateGreeting(name) {
+  // AIが以下を提案:
+  return `Hello, ${name}! Welcome to VS Code AI!`;
+}</pre>
+                </div>
+                
+                <div class="speech-bubble variant-2 top right">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-terminal fa-lg" style="color: var(--ui-color-5);"></i>
+                        コードを書くのが<br>
+                        もっと楽しくなる！<br>
+                        AIが<span class="keyword-tag">相棒</span>に！
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
+```
