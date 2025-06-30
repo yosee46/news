@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manusのシステムプロンプト可視化 - グラレコ風インフォグラフィック</title>
+    <style>
+        /* Google Fonts & Font Awesome */
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        /* Color Palette */
+        :root {
+            --ui-color-1: #1B6C8C; /* UI/UX-1 */
+            --ui-color-2: #BF8136; /* UI/UX-2 */
+            --ui-color-3: #F2E8E4; /* UI/UX-3 */
+            --ui-color-4: #260101; /* UI/UX-4 */
+            --ui-color-5: #BF5656; /* UI/UX-5 */
+            --background-color: #FFF8F5; /* Overall white background */
+        }
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            background-color: var(--background-color);
+            color: #333333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        .container {
+            max-width: 2000px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        header .main-title {
+            font-size: 36px;
+            color: #333333;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        header .main-title i {
+            color: var(--ui-color-1);
+            animation: fa-beat-fade 3s infinite; /* Header icon animation */
+        }
+
+        header .sub-info {
+            font-size: 14px;
+            color: #777777;
+        }
+
+        /* Section Layout */
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; /* Center cards in less than 4 columns */
+            gap: 25px; /* Spacing between cards */
+        }
+
+        /* Card Style */
+        .section-card {
+            flex: 1;
+            min-width: 280px; /* Adjusted slightly for better flow on smaller screens within 4-column */
+            max-width: 450px; /* Original max-width */
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex; /* Flex container for internal layout */
+            flex-direction: column;
+            justify-content: space-between; /* Pushes content and bubble to ends */
+            opacity: 0; /* Initial state for animation */
+            transform: scale(0.9); /* Initial state for animation */
+            animation: fadeInScale 0.8s ease-out forwards;
+        }
+
+        /* Card Hover Animation */
+        .section-card:hover {
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15); /* More pronounced shadow */
+            transform: translateY(-5px); /* Slight lift */
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Animation for cards */
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Delay for sequential appearance */
+        .section-card:nth-child(1) { animation-delay: 0.1s; }
+        .section-card:nth-child(2) { animation-delay: 0.2s; }
+        .section-card:nth-child(3) { animation-delay: 0.3s; }
+        .section-card:nth-child(4) { animation-delay: 0.4s; }
+        .section-card:nth-child(5) { animation-delay: 0.5s; }
+        .section-card:nth-child(6) { animation-delay: 0.6s; }
+        .section-card:nth-child(7) { animation-delay: 0.7s; }
+        .section-card:nth-child(8) { animation-delay: 0.8s; }
+        .section-card:nth-child(9) { animation-delay: 0.9s; }
+        .section-card:nth-child(10) { animation-delay: 1.0s; }
+        .section-card:nth-child(11) { animation-delay: 1.1s; }
+        .section-card:nth-child(12) { animation-delay: 1.2s; }
+        .section-card:nth-child(13) { animation-delay: 1.3s; }
+        .section-card:nth-child(14) { animation-delay: 1.4s; }
+
+
+        /* Card Title */
+        .section-card h2 {
+            font-size: 24px;
+            color: #555555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+            margin-top: 10px; /* Space from large icon */
+            margin-bottom: 15px;
+        }
+
+        .section-card h2 i {
+            color: var(--ui-color-1); /* Adjust color if needed */
+        }
+
+        /* Card internal elements */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .card-content {
+            padding: 0 10px 15px;
+            flex-grow: 1; /* Allows content to take available space */
+        }
+
+        .card-content h3 { /* List Heading */
+            font-size: 18px;
+            color: #333333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* Keyword List */
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        .keyword-list li i {
+            margin-right: 8px;
+            color: var(--ui-color-2); /* Icon color in list */
+            min-width: 16px;
+            font-size: 16px; /* fa-lg equivalent */
+        }
+
+        /* Keyword Tag */
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 3px 8px;
+            border-radius: 5px;
+            margin-right: 5px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background-color 0.3s ease; /* Highlight animation */
+        }
+
+        .keyword-tag:hover {
+            background-color: var(--ui-color-2); /* Hover highlight */
+            color: white;
+        }
+
+        /* Code Preview */
+        pre {
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+            overflow-x: auto;
+            font-family: monospace;
+        }
+
+        /* Speech Bubble */
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin: 15px 5px;
+            font-family: 'Yomogi', cursive;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+            align-self: center; /* Center the bubble horizontally within the card */
+            width: fit-content; /* Adjust width to content */
+            max-width: 90%; /* Ensure it doesn't overflow card */
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -13px;
+            left: 20%; /* Adjusted for more flexible positioning */
+            border-width: 12px 8px 0;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* Speech bubble variations */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 20%;
+            transform: rotate(15deg);
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -13px;
+            border-width: 0 8px 12px;
+            transform: rotate(-5deg);
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3;
+            border-color: var(--ui-color-2);
+            transform: rotate(1deg);
+        }
+
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent;
+        }
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9;
+            border-color: var(--ui-color-5);
+            transform: rotate(-2deg);
+        }
+
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent;
+        }
+
+        /* Handwritten text inside bubble */
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .handwritten i {
+            margin-right: 5px;
+            font-size: 1em; /* Adjust icon size relative to text */
+        }
+
+        /* General body text */
+        p {
+            font-size: 16px;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1600px) {
+            .section-card {
+                min-width: 280px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-card {
+                min-width: 320px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .section-card {
+                min-width: 380px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-layout {
+                flex-direction: column;
+                align-items: center; /* Center cards when stacked */
+            }
+
+            .section-card {
+                width: 95%; /* Use almost full width on mobile */
+                min-width: auto;
+                max-width: 450px; /* Still limit max width for readability */
+            }
+             .speech-bubble {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="main-title">
+                <i class="fa-solid fa-chart-line fa-7x" aria-hidden="true"></i>
+                <h1>Manus のシステムプロンプト可視化！</h1>
+            </div>
+            <p class="sub-info">ブラウザ機能とファイルシステム操作がマジでデカい！</p>
+            <p class="sub-info">2025年7月15日 現在のAIトレンド分析</p>
+        </header>
+
+        <section class="section-layout">
+
+            <!-- Card 1: IT/WEBエンジニア調査 - AIとキャリア -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-laptop-code fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                    <h2>エンジニアと生成AI：<br>キャリア再考と未来への投資</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-clipboard-list"></i> 調査概要</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-check"></i> 88%が業務でAIツールを利用</li>
+                        <li><i class="fa-solid fa-dollar-sign"></i> 47.1%が個人で課金 (月平均 <span class="keyword-tag">5,776円</span>)</li>
+                        <li><i class="fa-solid fa-users"></i> 66.9%がAI普及を機に<span class="keyword-tag">キャリア検討</span>/転職活動中</li>
+                        <li><i class="fa-solid fa-building"></i> 81.2%が<span class="keyword-tag">AI活用に積極的な企業</span>へ転職希望</li>
+                    </ul>
+                    <h3><i class="fa-solid fa-lightbulb"></i> 示唆</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-chart-line"></i> AIツール活用は<span class="keyword-tag">必須スキル</span>に</li>
+                        <li><i class="fa-solid fa-arrows-spin"></i> キャリア形成におけるAIの影響力増大</li>
+                        <li><i class="fa-solid fa-person-digging"></i> エンジニア個人の<span class="keyword-tag">リスキリング</span>の重要性</li>
+                    </ul>
+                </div>
+                <div class="speech-bubble variant-1 top">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-brain fa-lg" style="color: var(--ui-color-2);"></i>
+                        AIスキルがエンジニアの<br>
+                        市場価値を大きく左右する<br>
+                        時代へ突入！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 2: ミエルカAIチャット正式リリース - デジタルマーケティング特化 -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-chart-line fa-5x" style="color: var(--ui-color-2); animation: fa-flip 2s infinite;" aria-hidden="true"></i>
+                    <h2>デジタルマーケティング特化型AI：<br>ミエルカAIチャット</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-star"></i> 主な特長</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-infinity"></i> <span class="keyword-tag">GPT-4o</span>, <span class="keyword-tag">Gemini</span>, <span class="keyword-tag">Claude</span> 無制限利用</li>
+                        <li><i class="fa-solid fa-shield-halved"></i> エンタープライズ級の<span class="keyword-tag">セキュリティ</span></li>
+                        <li><i class="fa-solid fa-compass-drafting"></i> <span class="keyword-tag">SEO</span>, コンテンツ制作等40種以上の<span class="keyword-tag">専門プロンプト</span></li>
+                        <li><i class="fa-solid fa-link"></i> 既存ツールとの<span class="keyword-tag">データ連携</span></li>
+                    </ul>
+                    <h3><i class="fa-solid fa-triangle-exclamation"></i> 解決する課題</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-lock"></i> セキュリティ懸念</li>
+                        <li><i class="fa-solid fa-robot"></i> プロンプト作成の属人化</li>
+                        <li><i class="fa-solid fa-file-contract"></i> 複数AIモデルの契約煩雑さ</li>
+                    </ul>
+                </div>
+                <div class="speech-bubble right variant-2">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-circle-check fa-lg" style="color: var(--ui-color-5);"></i>
+                        専門AIでマーケティングを<br>
+                        <span class="keyword-tag">「安全・簡単・高品質」</span>に！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 3: Google Classroom Gemini機能 - 教育機関向け無償提供 -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-graduation-cap fa-5x" style="color: var(--ui-color-1); animation: fa-beat-fade 2s infinite;" aria-hidden="true"></i>
+                    <h2>教育現場にAIの翼：<br>Google Classroom Gemini無償化</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-check-circle"></i> アップデート内容</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-school"></i> <span class="keyword-tag">Google Classroom</span>のGemini機能が基本エディションで<span class="keyword-tag">追加費用なし</span></li>
+                        <li><i class="fa-solid fa-user-tie"></i> 18歳以上の教員が対象</li>
+                        <li><i class="fa-solid fa-robot"></i> 30種類以上のAI搭載ツールを活用</li>
+                    </ul>
+                    <h3><i class="fa-solid fa-chalkboard-teacher"></i> 活用例</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-file-pen"></i> 授業準備、教材作成、評価ルーブリック作成</li>
+                        <li><i class="fa-solid fa-language"></i> テキスト翻訳、選択課題構築</li>
+                    </ul>
+                </div>
+                <div class="speech-bubble top">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-hand-holding-heart fa-lg" style="color: var(--ui-color-1);"></i>
+                        教員の負担を大幅削減し、<br>
+                        <span class="keyword-tag">教育の質向上</span>に貢献！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 4: ChatGPT浸透で検索行動変化 - 問いを立てる力 -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-magnifying-glass-dollar fa-5x" style="color: var(--ui-color-2); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                    <h2>検索のパラダイムシフト：<br>AIが変える「調べる」行為</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-chart-simple"></i> 変化の概要</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-comments"></i> 従来の<span class="keyword-tag">Web検索</span>から<span class="keyword-tag">AI検索</span>へ</li>
+                        <li><i class="fa-solid fa-lightbulb"></i> 「情報の採掘」から「知識を深め拡張する<span class="keyword-tag">創造作業</span>」へ</li>
+                        <li><i class="fa-solid fa-triangle-exclamation"></i> AIの<span class="keyword-tag">ハルシネーション</span>リスクと一次ソース確認の重要性</li>
+                    </ul>
+                    <h3><i class="fa-solid fa-face-thinking"></i> AI時代の重要能力</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-question"></i> <span class="keyword-tag">問いを立てる力</span>：本質的な問いを生み出す</li>
+                        <li><i class="fa-solid fa-cogs"></i> <span class="keyword-tag">情報を使う力</span>：目的を持って活用し、選択する</li>
+                    </ul>
+                </div>
+                <div class="speech-bubble variant-1">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-flask-vial fa-lg" style="color: var(--ui-color-2);"></i>
+                        「答えの希少性」が消える時代！<br>
+                        人間が<span class="keyword-tag">競争力</span>を保つ鍵はコレ！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 5: Google Nest Gemini本格導入前テクニック -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-house-signal fa-5x" style="color: var(--ui-color-1); animation: fa-beat-fade 2s infinite;" aria-hidden="true"></i>
+                    <h2>スマートスピーカーの未来：<br>Geminiと現行Nest活用術</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-bullhorn"></i> 現状と課題</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-microphone-lines"></i> 現行Googleアシスタントは<span class="keyword-tag">複雑な指示に限界</span></li>
+                        <li><i class="fa-solid fa-robot"></i> <span class="keyword-tag">Gemini</span>本格導入はまだ先</li>
+                    </ul>
+                    <h3><i class="fa-solid fa-lightbulb"></i> 快適に使うテクニック</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-wrench"></i> <span class="keyword-tag">自動化</span>（ルーティン）活用で複雑なタスクを簡素化</li>
+                        <li><i class="fa-solid fa-user-plus"></i> <span class="keyword-tag">Voice Match</span>で個人認識を最適化</li>
+                        <li><i class="fa-solid fa-tag"></i> デバイスの分かりやすい<span class="keyword-tag">ネーミング</span></li>
+                    </ul>
+                </div>
+                <div class="speech-bubble variant-2 top right">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-thumbs-up fa-lg" style="color: var(--ui-color-5);"></i>
+                        AI進化を待たず、<br>
+                        今ある機能で<span class="keyword-tag">快適度MAX</span>！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 6: AIベンチマークに外交戦略ゲーム - クロードの平和志向 -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-handshake-angle fa-5x" style="color: var(--ui-color-2); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                    <h2>AIの個性と倫理：<br>ディプロマシーで見えた「クロードの平和」</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-chess-king"></i> 実験内容</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-gamepad"></i> <span class="keyword-tag">外交戦略ボードゲーム「ディプロマシー」</span>でAI対戦</li>
+                        <li><i class="fa-solid fa-brain"></i> <span class="keyword-tag">OpenAIのo3</span> vs <span class="keyword-tag">Anthropicのクロード</span>など</li>
+                    </ul>
+                    <h3><i class="fa-solid fa-chart-line"></i> 結果と示唆</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-crown"></i> o3は「<span class="keyword-tag">欺瞞的戦略</span>」で勝利</li>
+                        <li><i class="fa-solid fa-peace"></i> クロードは「<span class="keyword-tag">勝利よりも平和</span>」を優先し劣勢</li>
+                        <li><i class="fa-solid fa-microchip"></i> AIモデルの<span class="keyword-tag">多様な行動特性</span>が明らかに</li>
+                        <li><i class="fa-solid fa-gavel"></i> AIの<span class="keyword-tag">倫理と設計</span>の重要性</li>
+                    </ul>
+                </div>
+                <div class="speech-bubble">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-1);"></i>
+                        AIの真の評価には<br>
+                        従来のベンチマークでは測れない<br>
+                        <span class="keyword-tag">多角的な評価</span>が必要！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 7: note AI学習対価還元プログラム -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-pen-to-square fa-5x" style="color: var(--ui-color-1); animation: fa-flip 2s infinite;" aria-hidden="true"></i>
+                    <h2>クリエイター支援：<br>noteのAI学習対価還元プログラム</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-sack-dollar"></i> プログラム概要 (2025/8/1〜)</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-robot"></i> コンテンツが<span class="keyword-tag">生成AIの学習データ</span>に利用された際に対価還元</li>
+                        <li><i class="fa-solid fa-money-bill-transfer"></i> 銀行振込やAmazonギフトカードで支払い</li>
+                        <li><i class="fa-solid fa-gear"></i> クリエイターは記事単位で提供を<span class="keyword-tag">許可/不許可設定</span>可能</li>
+                    </ul>
+                    <h3><i class="fa-solid fa-bullseye"></i> 目的と示唆</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-hand-holding-dollar"></i> クリエイターの新たな<span class="keyword-tag">収益源</span>創出</li>
+                        <li><i class="fa-solid fa-seedling"></i> <span class="keyword-tag">クリエイターエコノミー</span>の強化と持続可能性向上</li>
+                        <li><i class="fa-solid fa-network-wired"></i> AIと人間の<span class="keyword-tag">共存・共益</span>のモデル構築</li>
+                    </ul>
+                </div>
+                <div class="speech-bubble variant-1 right">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-dollar-sign fa-lg" style="color: var(--ui-color-2);"></i>
+                        AIにコンテンツを提供して<br>
+                        お金がもらえる時代に！<br>
+                        画期的プログラム！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 8: Google スプレッドシート AI関数導入 -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-file-excel fa-5x" style="color: var(--ui-color-2); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                    <h2>スプレッドシート革命：<br>Gemini AI関数でデータ活用</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-plus-circle"></i> 新機能「AI関数」</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-brain"></i> <span class="keyword-tag">Google スプレッドシート</span>に<span class="keyword-tag">Gemini</span>を直接組み込み</li>
+                        <li><i class="fa-solid fa-code"></i> 利用形式: <span class="keyword-tag">=AI(プロンプト, データ範囲)</span></li>
+                    </ul>
+                    <h3><i class="fa-solid fa-gears"></i> 活用例</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-pen-to-square"></i> <span class="keyword-tag">テキスト生成</span>、<span class="keyword-tag">要約</span></li>
+                        <li><i class="fa-solid fa-tags"></i> <span class="keyword-tag">データ分類</span>（感情分析含む）</li>
+                    </ul>
+                    <pre>
+=AI("このテキストを30字で要約", A1)</pre>
+                </div>
+                <div class="speech-bubble variant-2 top">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-rocket fa-lg" style="color: var(--ui-color-5);"></i>
+                        データ専門知識不要！<br>
+                        誰でもAIで<span class="keyword-tag">業務効率大幅UP</span>！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 9: Google Gemma 3nリリース - 省メモリマルチモーダルAI -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-mobile-screen-button fa-5x" style="color: var(--ui-color-1); animation: fa-beat-fade 2s infinite;" aria-hidden="true"></i>
+                    <h2>エッジAIの最前線：<br>Google Gemma 3nリリース</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-microchip"></i> Gemma 3nの特長</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-battery-half"></i> <span class="keyword-tag">省メモリ・省電力</span>設計</li>
+                        <li><i class="fa-solid fa-mobile-alt"></i> <span class="keyword-tag">スマートフォン</span>上での実行が可能</li>
+                        <li><i class="fa-solid fa-image"></i> <span class="keyword-tag">マルチモーダルAI</span>モデル</li>
+                    </ul>
+                    <h3><i class="fa-solid fa-lightbulb"></i> 示唆</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-hand-point-right"></i> AIの<span class="keyword-tag">普及とユビキタス化</span>を加速</li>
+                        <li><i class="fa-solid fa-code-branch"></i> <span class="keyword-tag">新たなアプリ開発</span>の可能性</li>
+                        <li><i class="fa-solid fa-user-lock"></i> <span class="keyword-tag">プライバシー・セキュリティ</span>強化</li>
+                    </ul>
+                </div>
+                <div class="speech-bubble">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-leaf fa-lg" style="color: var(--ui-color-1);"></i>
+                        デバイス内処理で<br>
+                        AIをより身近に、<br>
+                        そして<span class="keyword-tag">環境にも優しく</span>！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 10: AIトレンド通信 6月号 - 主要AIツール最新動向 -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-chart-simple fa-5x" style="color: var(--ui-color-2); animation: fa-flip 2s infinite;" aria-hidden="true"></i>
+                    <h2>AIトレンド最前線：<br>主要ツール動向と日本企業の課題</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-robot"></i> 主要AIツール最新動向</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-microchip"></i> <span class="keyword-tag">OpenAI</span>: O3-PRO, GPT-5計画</li>
+                        <li><i class="fa-solid fa-atom"></i> <span class="keyword-tag">Google Gemini</span>: 機能拡張, Search Live</li>
+                        <li><i class="fa-brands fa-apple"></i> <span class="keyword-tag">Apple AI</span>: WWDC25新機能</li>
+                        <li><i class="fa-solid fa-image"></i> <span class="keyword-tag">Midjourney</span>/Nijijourney: 動画生成等</li>
+                    </ul>
+                    <h3><i class="fa-solid fa-flag-usa"></i> 日本のAI活用課題</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-circle-exclamation"></i> 導入率は世界並みだが、<span class="keyword-tag">「価値創出」</span>に大きな課題</li>
+                    </ul>
+                </div>
+                <div class="speech-bubble variant-1 top right">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-2);"></i>
+                        AI導入だけでなく、<br>
+                        いかにビジネス価値に繋げるか？<br>
+                        日本企業は今が勝負！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 11: Android Gemini Live Googleサービス連携 -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-brands fa-android fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                    <h2>Gemini Live連携強化：<br>AndroidでGoogleサービスをシームレス操作</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-link"></i> 連携サービス (2025年6月下旬〜)</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-calendar-alt"></i> <span class="keyword-tag">Googleカレンダー</span></li>
+                        <li><i class="fa-solid fa-list-check"></i> <span class="keyword-tag">Google ToDoリスト</span></li>
+                        <li><i class="fa-solid fa-note-sticky"></i> <span class="keyword-tag">Google Keep</span></li>
+                        <li><i class="fa-solid fa-map-location-dot"></i> <span class="keyword-tag">Googleマップ</span></li>
+                    </ul>
+                    <h3><i class="fa-solid fa-star"></i> ユーザー体験の向上</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-comments"></i> 会話を通じて<span class="keyword-tag">スケジュール管理、メモ作成、タスク管理、場所検索</span></li>
+                        <li><i class="fa-solid fa-arrows-left-right"></i> アプリ間の切り替え不要で<span class="keyword-tag">シームレスな操作</span></li>
+                    </ul>
+                </div>
+                <div class="speech-bubble variant-2">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-magic fa-lg" style="color: var(--ui-color-5);"></i>
+                        AIアシスタントが<br>
+                        あなたの生活・業務を<br>
+                        <span class="keyword-tag">もっとスマートに</span>！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 12: SEO Google AIモード クエリファンアウト -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-brands fa-searchengin fa-5x" style="color: var(--ui-color-2); animation: fa-beat-fade 2s infinite;" aria-hidden="true"></i>
+                    <h2>SEO新時代：<br>Google AIモード「クエリファンアウト」の衝撃</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-sitemap"></i> クエリファンアウトとは</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-magnifying-glass"></i> AIがユーザー質問から<span class="keyword-tag">複数のサブクエリを自動生成</span></li>
+                        <li><i class="fa-solid fa-compress-alt"></i> Web上の情報を統合し、<span class="keyword-tag">包括的回答</span>を提示</li>
+                    </ul>
+                    <h3><i class="fa-solid fa-chart-line-down"></i> SEO戦略の転換</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-mouse"></i> パブリッシャーへの<span class="keyword-tag">クリック減少</span>懸念</li>
+                        <li><i class="fa-solid fa-newspaper"></i> 「単一キーワード」から「<span class="keyword-tag">多くのサブクエリへの有用な情報提供</span>」へ</li>
+                        <li><i class="fa-solid fa-star"></i> <span class="keyword-tag">E-E-A-T</span>に基づいたコンテンツ最適化が必須</li>
+                    </ul>
+                </div>
+                <div class="speech-bubble right">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-bullhorn fa-lg" style="color: var(--ui-color-1);"></i>
+                        AI検索がSEOの常識を変える！<br>
+                        <span class="keyword-tag">コンテンツ戦略</span>を<br>
+                        見直す時期！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 13: モトローラ AIキー搭載スマホ -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-mobile-button fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                    <h2>AIキー搭載！<br>Motorola edge 60 proでスマホ体験進化</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-mobile-alt"></i> 主な特長</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-key"></i> <span class="keyword-tag">専用AIキー</span>搭載 (Perplexity, Gemini等へアクセス)</li>
+                        <li><i class="fa-solid fa-camera-retro"></i> <span class="keyword-tag">moto ai</span>によるカメラ画質向上・撮影機能</li>
+                        <li><i class="fa-solid fa-bolt"></i> <span class="keyword-tag">125W急速充電</span> (28分で100%充電)</li>
+                        <li><i class="fa-solid fa-water"></i> <span class="keyword-tag">IP68/IP69</span>防水・防塵</li>
+                    </ul>
+                    <h3><i class="fa-solid fa-lightbulb"></i> 示唆</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-robot"></i> <span class="keyword-tag">AI機能</span>がスマホの重要差別化要因に</li>
+                        <li><i class="fa-solid fa-hourglass-half"></i> <span class="keyword-tag">急速充電技術</span>の普及と重要性</li>
+                    </ul>
+                </div>
+                <div class="speech-bubble variant-1">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-star fa-lg" style="color: var(--ui-color-2);"></i>
+                        スマホが単なる端末から<br>
+                        <span class="keyword-tag">パーソナルなAIアシスタント</span>へ！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 14: AI活用本セール - Kindleプライムデー -->
+            <div class="section-card">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-book-open-reader fa-5x" style="color: var(--ui-color-2); animation: fa-flip 2s infinite;" aria-hidden="true"></i>
+                    <h2>AI学習チャンス：<br>KindleプライムデーでAI本が半額！</h2>
+                </div>
+                <div class="card-content">
+                    <h3><i class="fa-solid fa-tag"></i> セール概要</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-brands fa-amazon"></i> Amazon <span class="keyword-tag">プライムデーセール</span> (7/11～14)</li>
+                        <li><i class="fa-solid fa-percent"></i> <span class="keyword-tag">AI活用に関するKindle本</span>が割引対象</li>
+                    </ul>
+                    <h3><i class="fa-solid fa-book"></i> 対象書籍例</h3>
+                    <ul class="keyword-list">
+                        <li><i class="fa-solid fa-magnifying-glass-plus"></i> <span class="keyword-tag">プロンプト</span>の作り方</li>
+                        <li><i class="fa-solid fa-robot"></i> <span class="keyword-tag">ChatGPT</span>, <span class="keyword-tag">Gemini</span>, <span class="keyword-tag">Copilot</span>の使い方</li>
+                    </ul>
+                </div>
+                <div class="speech-bubble variant-2 right top">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-graduation-cap fa-lg" style="color: var(--ui-color-5);"></i>
+                        高まるAIスキル学習ニーズ！<br>
+                        お得に専門知識をGETする<br>
+                        絶好のチャンス！
+                    </span>
+                </div>
+            </div>
+
+        </section>
+    </div>
+</body>
+</html>
