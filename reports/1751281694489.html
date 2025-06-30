@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グラフィックレコーディング風インフォグラフィック</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --ui-color-1: #1B6C8C; /* UI/UX-1 */
+            --ui-color-2: #BF8136; /* UI/UX-2 */
+            --ui-color-3: #F2E8E4; /* UI/UX-3 */
+            --ui-color-4: #260101; /* UI/UX-4 */
+            --ui-color-5: #BF5656; /* UI/UX-5 */
+        }
+
+        body {
+            font-family: 'Zen Kurenaido', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #FFF8F5; /* 全体を白背景のキャンバス上に配置 */
+            color: #333333;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ヘッダー */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            max-width: 2000px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: white;
+            border-bottom: 2px solid var(--ui-color-3);
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        header h1 {
+            font-size: 36px;
+            color: #333333;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        header h1 i {
+            color: var(--ui-color-1);
+            font-size: 6em; /* fa-6x以上 */
+        }
+
+        header .date {
+            font-size: 14px;
+            color: #777777;
+        }
+
+        /* 全体レイアウト */
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px; /* カード間の余白 */
+            padding: 20px;
+            max-width: 2000px; /* 横幅：100%（最大2000px程度でセンタリング） */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* カードスタイル */
+        .section-card {
+            flex: 1;
+            min-width: 220px;
+            max-width: 450px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15);
+        }
+
+        /* カード内アイコンコンテナ */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0 25px;
+            position: relative;
+        }
+
+        .mega-icon-container h2 {
+            font-size: 24px;
+            color: #555555;
+            margin-top: 15px;
+            margin-bottom: 0;
+            line-height: 1.3;
+        }
+
+        /* カードコンテンツ */
+        .card-content {
+            padding: 0 10px 15px;
+            flex-grow: 1;
+        }
+
+        /* キーワードリスト */
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        .keyword-list li i {
+            margin-right: 10px;
+            color: var(--ui-color-2);
+            min-width: 18px;
+            text-align: center;
+            padding-top: 2px;
+        }
+        .keyword-list li .keyword-list li i { /* Nested list icons slightly smaller */
+            font-size: 0.9em;
+            padding-top: 3px;
+        }
+
+
+        /* キーワードタグ */
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-right: 6px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 15px;
+            white-space: nowrap;
+        }
+
+        /* 手書き風吹き出し */
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin: 25px 5px 15px;
+            font-family: 'Yomogi', cursive;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 20%;
+            border-width: 15px 10px 0;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            display: block;
+            width: 0;
+            transform: rotate(-5deg);
+        }
+
+        /* 吹き出しバリエーション */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 20%;
+            transform: rotate(15deg);
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -15px;
+            border-width: 0 10px 15px;
+            transform: rotate(-5deg);
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3;
+            border-color: var(--ui-color-2);
+            transform: rotate(1deg);
+        }
+
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent;
+        }
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9;
+            border-color: var(--ui-color-5);
+            transform: rotate(-2deg);
+        }
+
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent;
+        }
+
+        /* 手書き文字 */
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .handwritten i {
+            margin-right: 5px;
+        }
+
+        /* コードプレビュー */
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            margin-top: 15px;
+            overflow-x: auto;
+            border: 1px solid #eee;
+        }
+
+        /* アニメーション */
+        @keyframes fade-in-scale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .fade-in-scale {
+            animation: fade-in-scale 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* スクロールアニメーション（Intersection Observer API用） */
+        .hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 1600px) {
+            .section-card {
+                max-width: 48%; /* 2カラム表示に近づける */
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-card {
+                max-width: 48%; /* 2カラム表示 */
+                min-width: 350px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .section-card {
+                max-width: 95%; /* 1カラム表示に近づける */
+                min-width: unset;
+                width: 100%;
+            }
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 30px;
+            }
+            header h1 i {
+                font-size: 5em;
+            }
+            .section-card {
+                width: 100%;
+                min-width: auto;
+                max-width: 95%;
+            }
+            .speech-bubble {
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            <i class="fa-solid fa-clipboard-list fa-7x" aria-hidden="true"></i>
+            最新テックニュース グラフィックまとめ
+        </h1>
+        <div class="date">2024年7月20日更新</div>
+    </header>
+
+    <div class="main-container">
+        <!-- カード 1: XServer VPS & Claude Code -->
+        <div class="section-card fade-in-scale hidden">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-server fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s;" aria-hidden="true"></i>
+                <h2>『XServer VPS』<br>AIコーディング支援ツール提供</h2>
+            </div>
+            
+            <div class="card-content">
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-file-code fa-lg" aria-hidden="true"></i>
+                        <span>
+                            **概要:** エックスサーバーVPSにて、AIコーディング支援ツール<span class="keyword-tag">「Claude Code」</span>のアプリイメージ提供を開始。<br>セキュアな環境で、<span class="keyword-tag">簡単導入・迅速活用</span>を実現します。
+                        </span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-comment-dots fa-lg" aria-hidden="true"></i>
+                        <span>**ニュースの背景:**</span>
+                        <ul class="keyword-list" style="margin-top: 5px;">
+                            <li>
+                                <i class="fa-solid fa-shield-alt fa-sm" aria-hidden="true"></i>
+                                <span>生成AIツールの需要増も<span class="keyword-tag">セキュリティ懸念</span>で企業導入が進まず。</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-network-wired fa-sm" aria-hidden="true"></i>
+                                <span>特にAIコーディングツールは<span class="keyword-tag">社内ネットワーク干渉</span>が障壁に。</span>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-lightbulb fa-lg" aria-hidden="true"></i>
+                        <span>**示唆:**</span>
+                        <ul class="keyword-list" style="margin-top: 5px;">
+                            <li>
+                                <i class="fa-solid fa-check-circle fa-sm" aria-hidden="true"></i>
+                                <span><span class="keyword-tag">企業のAI導入促進</span>: 独立環境でセキュリティ確保しつつAI活用。</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-chart-line fa-sm" aria-hidden="true"></i>
+                                <span><span class="keyword-tag">開発生産性向上</span>: 「Claude Code」により開発効率と工数を大幅削減。</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-tools fa-sm" aria-hidden="true"></i>
+                                <span><span class="keyword-tag">開発環境の簡素化・柔軟性</span>: 複雑な構築知識不要、リモートワークも支援。</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-award fa-sm" aria-hidden="true"></i>
+                                <span><span class="keyword-tag">XServer競争力強化</span>: AI開発ニーズに応え、企業ユーザーに魅力的な選択肢に。</span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="speech-bubble variant-1 right">
+                <span class="handwritten">
+                    <i class="fa-solid fa-rocket fa-lg" style="color: var(--ui-color-5);"></i>
+                    <span class="keyword-tag">開発効率爆上げ！</span><br>
+                    セキュアなAI環境を<br>
+                    手軽にスタートできるね！
+                </span>
+            </div>
+        </div>
+
+        <!-- カード 2: Datadog & LLM Observability -->
+        <div class="section-card fade-in-scale hidden" style="animation-delay: 0.2s;">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-eye fa-5x" style="color: var(--ui-color-2); animation: fa-flip 2s infinite;" aria-hidden="true"></i>
+                <h2>Datadog<br>AIエージェント観測性強化</h2>
+            </div>
+            
+            <div class="card-content">
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-chart-area fa-lg" aria-hidden="true"></i>
+                        <span>
+                            **概要:** Datadogが<span class="keyword-tag">「LLM Observability」</span>新機能3つを発表。AIエージェントのパフォーマンス・ビジネス価値の可視化と管理を強化します。
+                        </span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-comment-dots fa-lg" aria-hidden="true"></i>
+                        <span>**ニュースの背景:**</span>
+                        <ul class="keyword-list" style="margin-top: 5px;">
+                            <li>
+                                <i class="fa-solid fa-box-open fa-sm" aria-hidden="true"></i>
+                                <span>AIシステムの<span class="keyword-tag">動作不明瞭さ</span>とビジネス影響把握の難しさ。</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-lock fa-sm" aria-hidden="true"></i>
+                                <span>複雑なインタラクション、評価、<span class="keyword-tag">セキュリティ・コンプライアンス</span>が導入障壁に。</span>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-lightbulb fa-lg" aria-hidden="true"></i>
+                        <span>**示唆:**</span>
+                        <ul class="keyword-list" style="margin-top: 5px;">
+                            <li>
+                                <i class="fa-solid fa-handshake fa-sm" aria-hidden="true"></i>
+                                <span><span class="keyword-tag">AI導入の加速と信頼性向上</span>: AIの「ブラックボックス」解消で安心導入。</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-piggy-bank fa-sm" aria-hidden="true"></i>
+                                <span><span class="keyword-tag">開発効率とROI最大化</span>: プロンプト調整や利用状況可視化で最適化。</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-gavel fa-sm" aria-hidden="true"></i>
+                                <span><span class="keyword-tag">ガバナンスとセキュリティ強化</span>: 機密データアクセス時のリスク対応支援。</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-chart-bar fa-sm" aria-hidden="true"></i>
+                                <span><span class="keyword-tag">オブザーバビリティ市場進化</span>: AI固有ニーズに対応しDatadogがリーダーシップ。</span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="speech-bubble variant-2 top">
+                <span class="handwritten">
+                    <i class="fa-solid fa-info-circle fa-lg" style="color: var(--ui-color-1);"></i>
+                    AIの「なぜ？」が<br>
+                    見える化されるのは<br>
+                    <span class="keyword-tag">すごく重要だね！</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- カード 3: No Content Provided (Placeholder) -->
+        <div class="section-card fade-in-scale hidden" style="animation-delay: 0.4s;">
+            <div class="mega-icon-container">
+                <i class="fa-solid fa-question-circle fa-5x" style="color: var(--ui-color-5); animation: fa-beat-fade 2s infinite;" aria-hidden="true"></i>
+                <h2>情報提供お待ちしています！</h2>
+            </div>
+            
+            <div class="card-content">
+                <ul class="keyword-list">
+                    <li>
+                        <i class="fa-solid fa-circle-info fa-lg" aria-hidden="true"></i>
+                        <span>
+                            **現在、まとめるための具体的なニュース記事や情報が提供されておりません。**
+                        </span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-magnifying-glass fa-lg" aria-hidden="true"></i>
+                        <span>
+                            <span class="keyword-tag">タイトル</span>、<span class="keyword-tag">概要</span>、<span class="keyword-tag">ニュースの背景</span>、<span class="keyword-tag">示唆</span>を含めた情報をお待ちしております。
+                        </span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-lightbulb fa-lg" aria-hidden="true"></i>
+                        <span>
+                            新しい情報を提供いただければ、この形式で<span class="keyword-tag">グラフィックレコーディング風</span>に変換します！
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="speech-bubble">
+                <span class="handwritten">
+                    <i class="fa-solid fa-hand-sparkles fa-lg" style="color: var(--ui-color-2);"></i>
+                    <span class="keyword-tag">新しい情報</span>で<br>
+                    素敵なインフォグラフィックを<br>
+                    作りましょう！
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll animation JS (optional, but good for user experience) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.section-card');
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        entry.target.classList.remove('hidden');
+                        observer.unobserve(entry.target); // 一度表示されたら監視を停止
+                    }
+                });
+            }, { threshold: 0.1 }); // 10%が見えたら発火
+
+            cards.forEach(card => {
+                card.classList.add('hidden'); // 初期状態を非表示に
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
