@@ -1,0 +1,451 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>グラフィックレコーディング風インフォグラフィック</title>
+    <style>
+        /* Color Palette */
+        :root {
+            --ui-color-1: #1B6C8C; /* UI/UX-1 */
+            --ui-color-2: #BF8136; /* UI/UX-2 */
+            --ui-color-3: #F2E8E4; /* UI/UX-3 */
+            --ui-color-4: #260101; /* UI/UX-4 */
+            --ui-color-5: #BF5656; /* UI/UX-5 */
+        }
+
+        body {
+            font-family: sans-serif; /* Fallback */
+            background-color: #FFF8F5;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Google Fonts & Font Awesome */
+        @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        /* Typography */
+        h1 {
+            font-size: 36px;
+            color: #333333;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 15px; /* Icon-text gap */
+            margin-bottom: 30px;
+            font-family: 'Kaisei Decol', sans-serif;
+        }
+
+        h1 i {
+            color: var(--ui-color-1); /* Adjust as needed */
+        }
+
+        .header-date {
+            font-size: 14px;
+            color: #777777;
+            text-align: center;
+            margin-top: -20px;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #555555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-family: 'Zen Kurenaido', sans-serif;
+        }
+
+        h2 i {
+            color: var(--ui-color-2); /* Adjust as needed */
+        }
+
+        .keyword-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .keyword-list li {
+            font-size: 16px;
+            color: #333333;
+            line-height: 1.5;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            font-family: 'Zen Kurenaido', sans-serif;
+        }
+
+        .keyword-list li i {
+            margin-right: 8px;
+            color: var(--ui-color-2);
+            min-width: 16px;
+        }
+
+        .keyword-tag {
+            background-color: var(--ui-color-3);
+            color: var(--ui-color-4);
+            padding: 3px 8px;
+            border-radius: 5px;
+            margin-right: 5px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 14px; /* Adjust size for tag */
+            font-family: 'Zen Kurenaido', sans-serif;
+        }
+
+        /* Speech Bubble */
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 3px solid var(--ui-color-1);
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin: 15px 5px; /* Adjust margin for placement */
+            font-family: 'Yomogi', cursive;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+            transform: rotate(-1deg); /* Slight rotation for hand-drawn feel */
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            /* Default: bottom, left */
+            bottom: -13px;
+            left: 20px;
+            border-width: 12px 8px 0;
+            border-style: solid;
+            border-color: var(--ui-color-1) transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* 吹き出しバリエーション */
+        .speech-bubble.right::after {
+            left: auto;
+            right: 20px;
+            transform: rotate(15deg);
+        }
+
+        .speech-bubble.top::after {
+            bottom: auto;
+            top: -13px;
+            border-width: 0 8px 12px;
+            border-color: var(--ui-color-1) transparent; /* Re-specify color for top */
+            transform: rotate(-5deg);
+        }
+
+        .speech-bubble.variant-1 {
+            background: #FFF9E3; /* Lighter UI/UX-2 */
+            border-color: var(--ui-color-2);
+            transform: rotate(1deg);
+        }
+
+        .speech-bubble.variant-1::after {
+            border-color: var(--ui-color-2) transparent;
+        }
+
+        .speech-bubble.variant-2 {
+            background: #FFE9E9; /* Lighter UI/UX-5 */
+            border-color: var(--ui-color-5);
+            transform: rotate(-2deg);
+        }
+
+        .speech-bubble.variant-2::after {
+            border-color: var(--ui-color-5) transparent;
+        }
+
+        /* Handwitten font */
+        .handwritten {
+            font-family: 'Yomogi', cursive;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        /* Layout */
+        .main-container {
+            max-width: 2000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section-layout {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px; /* Space between cards */
+            margin-bottom: 50px;
+        }
+
+        /* Card Style */
+        .section-card {
+            flex: 1;
+            min-width: 220px;
+            max-width: 450px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex; /* Flex container for internal content alignment */
+            flex-direction: column;
+            justify-content: space-between; /* Pushes bubble to bottom, content to top */
+            animation: fade-in-scale 1s forwards cubic-bezier(0.2, 0.8, 0.2, 1); /* Initial animation */
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        /* Card内アイコンコンテナ */
+        .mega-icon-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        /* カードコンテンツ */
+        .card-content {
+            padding: 0 10px 15px;
+            flex-grow: 1; /* Allow content to grow */
+        }
+
+        /* コードプレビュー */
+        pre {
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-top: 10px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace; /* Monospace font */
+        }
+
+        /* Animations */
+        @keyframes fade-in-scale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Hover effect */
+        .section-card:hover {
+            background-color: var(--ui-color-3); /* Background color change on hover */
+            transform: scale(1.02);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 1600px) {
+            .section-card {
+                min-width: 280px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-card {
+                min-width: 320px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .section-card {
+                min-width: 380px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-layout {
+                flex-direction: column;
+                align-items: center; /* Center cards in column layout */
+            }
+            
+            .section-card {
+                width: 90%; /* Adjust width for better mobile view */
+                min-width: auto;
+                max-width: 450px; /* Maintain max-width */
+            }
+
+            h1 {
+                font-size: 28px;
+                flex-direction: column; /* Stack icon and text */
+                gap: 5px;
+            }
+            h1 i {
+                font-size: 5em !important; /* Adjust header icon size for mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>
+            <i class="fa-solid fa-chalkboard-user fa-7x" style="color: var(--ui-color-1);"></i>
+            最新テクノロジー動向速報
+        </h1>
+        <div class="header-date">2024年7月26日 更新</div>
+
+        <!-- Section 1: GitHub Copilot Chat & AI Editor Evolution -->
+        <div class="section-layout">
+            <!-- Card 1: Copilot Chat Open Source -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-code-branch fa-5x" style="color: var(--ui-color-1); animation: fa-bounce 2s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-github fa-lg"></i> GitHub Copilot Chat OSS化</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">MITライセンス</span>で公開</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-terminal" aria-hidden="true"></i>
+                            <span>VS CodeへのAI機能<span class="keyword-tag">組み込み</span>の第一歩</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-robot" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">「オープンソースのAIエディタ」</span>への進化</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble variant-1">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-circle-info fa-lg" style="color: var(--ui-color-2);"></i>
+                        VS CodeのAI機能強化に
+                        <br>
+                        <span class="keyword-tag">注目！</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 2: Impact on AI Editors -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-people-arrows fa-5x" style="color: var(--ui-color-5); animation: fa-beat-fade 2s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-lightbulb fa-lg"></i> AIエディタの今後</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-code" aria-hidden="true"></i>
+                            <span><span class="keyword-tag">Cursor</span>や<span class="keyword-tag">Windsurf</span>に影響</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <span>独自のAI機能での<span class="keyword-tag">差別化</span>が課題に</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-cogs" aria-hidden="true"></i>
+                            <span>開発競争がさらに加速！</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble right variant-2">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-triangle-exclamation fa-lg" style="color: var(--ui-color-5);"></i>
+                        今後の<span class="keyword-tag">AIエディタ</span>市場は
+                        <br>
+                        どうなる！？
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Future SoC & Chip Development -->
+        <div class="section-layout">
+            <!-- Card 3: Smartphone SoCs 2025 -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-mobile-screen-button fa-5x" style="color: var(--ui-color-2); animation: fa-flip 2s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-microchip fa-lg"></i> 2025年主要スマホSoC</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-apple-whole" aria-hidden="true"></i>
+                            <span>Apple: <span class="keyword-tag">A19 Pro</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+                            <span>Qualcomm: <span class="keyword-tag">Snapdragon 8 Elite 2</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+                            <span>MediaTek: <span class="keyword-tag">Dimensity 9500</span></span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+                            <span>Huawei: <span class="keyword-tag">Kirin 9030</span></span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble top variant-1">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-calendar-alt fa-lg" style="color: var(--ui-color-2);"></i>
+                        2025年後半の
+                        <br>
+                        <span class="keyword-tag">新製品</span>に期待！
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 4: Other Chip Developments -->
+            <div class="section-card fade-in-scale">
+                <div class="mega-icon-container">
+                    <i class="fa-solid fa-laptop-code fa-5x" style="color: var(--ui-color-4); animation: fa-shake 2s infinite;" aria-hidden="true"></i>
+                    <h2><i class="fa-solid fa-brain fa-lg"></i> 次世代チップ開発</h2>
+                </div>
+                
+                <div class="card-content">
+                    <ul class="keyword-list">
+                        <li>
+                            <i class="fa-solid fa-apple-whole" aria-hidden="true"></i>
+                            <span>Apple: <span class="keyword-tag">M5チップ</span> (iPad Pro, MacBook Pro)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-wrench" aria-hidden="true"></i>
+                            <span>Xiaomi: <span class="keyword-tag">XRING O2</span> (独自開発継続)</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                            <span>各社が性能向上を追求</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="speech-bubble variant-2">
+                    <span class="handwritten">
+                        <i class="fa-solid fa-lightbulb fa-lg" style="color: var(--ui-color-5);"></i>
+                        モバイルからPCまで
+                        <br>
+                        チップ進化が止まらない！
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+```
